@@ -67,7 +67,10 @@ jobs:
             echo "stable=true" >> "$GITHUB_OUTPUT"
           else
             echo "::warning::Permanent signing secret is absent. No official signed release will be published; only the build for testing/local signing."
-            "$BT/apksigner" sign --ks "$HOME/.android/debug.keystore" --ks-pass pass:android --key-pass pass:android --ks-key-alias androiddebugkey --out dist/build/qa-release.apk "$UNSIGNED"
+            KEYDIR="$(mktemp -d)"
+            trap 'rm -rf "$KEYDIR"' EXIT
+            keytool -genkeypair -alias qa -keyalg RSA -keysize 2048 -validity 365 -storetype PKCS12 -keystore "$KEYDIR/qa.p12" -storepass android -keypass android -dname "CN=ToanLop3 ephemeral QA only" >/dev/null 2>&1
+            "$BT/apksigner" sign --ks "$KEYDIR/qa.p12" --ks-pass pass:android --key-pass pass:android --ks-key-alias qa --out dist/build/qa-release.apk "$UNSIGNED"
             "$BT/apksigner" verify --verbose --print-certs dist/build/qa-release.apk > dist/build/signature.txt
             echo "stable=false" >> "$GITHUB_OUTPUT"
           fi
@@ -76,8 +79,9 @@ jobs:
           if grep -q 'application-debuggable' dist/build/package.txt; then exit 1; fi
           python3 tests/check_game_assets.py dist/build/qa-release.apk
           sha256sum dist/build/qa-release.apk > dist/build/qa-sha256.txt
-          cat dist/build/package.txt | head -8
+          head -8 dist/build/package.txt
       - name: Upload unverified build for local signing
+        if: always() && steps.sign.outcome != 'skipped'
         uses: actions/upload-artifact@v4
         with:
           name: ToanLop3-build-v0.6.1
