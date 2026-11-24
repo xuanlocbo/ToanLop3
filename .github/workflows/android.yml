@@ -45,10 +45,10 @@ jobs:
           APK=app/build/outputs/apk/debug/app-debug.apk
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
           mkdir -p dist
-          cp "$APK" dist/ToanLop3-0.3.0.apk
+          cp "$APK" dist/ToanLop3-0.3.1.apk
       - uses: actions/upload-artifact@v4
         with:
           name: ToanLop3-APK
-          path: dist/ToanLop3-0.3.0.apk
+          path: dist/ToanLop3-0.3.1.apk
           if-no-files-found: error
           retention-days: 30

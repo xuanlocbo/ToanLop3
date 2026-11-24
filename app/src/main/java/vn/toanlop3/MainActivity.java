@@ -155,7 +155,7 @@ public final class MainActivity extends Activity {
   if(!s.finished()){BookBank.Q q=s.current();add(labels,text(advanced?"Thử thách tự soạn "+(s.cursor+1)+"/2":q.source(),13,MUTED,false),-2,0);}
   LinearLayout.LayoutParams lab=new LinearLayout.LayoutParams(0,-2,1);lab.leftMargin=dp(7);header.addView(labels,lab);
   TextView cnt=center("⭐ "+s.completed()+"/"+s.count(),18,PINK,true);header.addView(cnt,new LinearLayout.LayoutParams(dp(96),-2));add(root,header,-2,0);bar(root,s.completed(),s.count());
-  if(s.finished()){finish();return;}
+  if(s.finished()){showLessonComplete();return;}
   BookBank.Q q=s.current();
   LinearLayout body=row();body.setGravity(Gravity.TOP);
   LinearLayout left=column();left.setBackground(background(0xff4dbff3,0xffb3ed8c,18,Color.WHITE));pad(left,3);
@@ -220,7 +220,7 @@ public final class MainActivity extends Activity {
  private void submit(boolean ok){JourneyState s=state();if(s.finished()||s.solved)return;
   if(ok){animationFrom=s.player;s.correct();s.player=1;}else{s.fail();}playSound(ok);save(false);render();
  }
- private void finish(){
+ private void showLessonComplete(){
   LinearLayout pane=card();add(pane,center(advanced?"🏆 Hoàn thành nâng cao!":"🎉 Hoàn thành bài "+lesson+"!",30,PINK,true),-2,0);
   add(pane,center("⭐ "+state().completed()+"/"+state().count()+" nhiệm vụ",24,DARK,true),-2,6);
   if(!advanced)add(pane,pink("⭐ Thử thách nâng cao · 2 câu",22,()->start(lesson,true)),50,9);
@@ -240,7 +240,7 @@ public final class MainActivity extends Activity {
  private void settings(LinearLayout page){add(page,text("Cài đặt",25,PINK,true),-2,0);add(page,pale(sound?"🔊 Tắt âm thanh":"🔇 Bật âm thanh",20,()->{sound=!sound;save(false);render();}),48,7);
   add(page,pale("Sao lưu tiến độ",20,()->{Intent in=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json").putExtra(Intent.EXTRA_TITLE,"ToanLop3-tien-do.json");startActivityForResult(in,EXPORT);}),48,7);
   add(page,pale("Khôi phục tiến độ",20,()->{Intent in=new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json");startActivityForResult(in,IMPORT);}),48,7);
-  add(page,text("Toán lớp 3 · 0.3.0\nSGK Toán 3 tập một, tr.72–121; VBT tập một, tr.64–115. Ngân hàng chuyển thể có chỉ mục trang/tiết. 2 câu nâng cao tự soạn mỗi bài. Các nhiệm vụ thực hành thật do người học xác nhận. Android native, chạy offline.",16,MUTED,false),-2,9);
+  add(page,text("Toán lớp 3 · 0.3.1\nSGK Toán 3 tập một, tr.72–121; VBT tập một, tr.64–115. Ngân hàng chuyển thể có chỉ mục trang/tiết. 2 câu nâng cao tự soạn mỗi bài. Các nhiệm vụ thực hành thật do người học xác nhận. Android native, chạy offline.",16,MUTED,false),-2,9);
   if(!legacyArchive.isEmpty())add(page,text("Tiến độ bản thử nghiệm cũ vẫn được lưu trong bản sao lưu; nội dung cơ bản đã thay sang ngân hàng theo sách nên không tự gán kết quả cũ cho câu mới.",14,MUTED,false),-2,8);
  }
  private JSONObject backup()throws JSONException{JSONObject j=new JSONObject(),a=new JSONObject(),b=new JSONObject();j.put("schema",3);j.put("app","vn.toanlop3");j.put("lesson",lesson);j.put("advanced",advanced);j.put("sound",sound);j.put("screen",screen);j.put("legacy",legacyArchive);for(int i=0;i<20;i++){a.put(""+(i+25),core[i].json());b.put(""+(i+25),bonus[i].json());}j.put("lessons",a);j.put("bonus",b);if(reviewing&&review!=null){j.put("reviewing",true);j.put("reviewState",review.json());}return j;}
