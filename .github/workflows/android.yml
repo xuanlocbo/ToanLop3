@@ -60,7 +60,7 @@ jobs:
           (p/'key.p12').write_bytes(base64.b64decode(j['keystore_b64'],validate=True))
           (p/'password').write_text(j['password'])
           PY
-            "$BT/apksigner" sign --ks "$KEYDIR/key.p12" --ks-key-alias toanlop3 --ks-pass "file:$KEYDIR/password" --key-pass "file:$KEYDIR/password" --out dist/published/ToanLop3-0.6.1.apk "$UNSIGNED"
+            "$BT/apksigner" sign --ks "$KEYDIR/key.p12" --ks-key-alias toanlop3 --ks-pass "file:$KEYDIR/password" --out dist/published/ToanLop3-0.6.1.apk "$UNSIGNED"
             "$BT/apksigner" verify --verbose --print-certs dist/published/ToanLop3-0.6.1.apk > dist/build/signature.txt
             grep -Fqi "53c9a53416c3ba400c645417be621254a79c22553be31188548afcc642cba57b" dist/build/signature.txt
             cp dist/published/ToanLop3-0.6.1.apk dist/build/qa-release.apk
