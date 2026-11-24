@@ -22,9 +22,10 @@ public final class BookBankCheck {
    }
    for(int i=0;i<2;i++){BookBank.Q q=BookBank.advanced(l,i);if(!q.check(q.answer)||q.prompt.isEmpty())throw new AssertionError("Advanced "+l);bonus++;}
   }
-  if(total!=483||bonus!=40||practice!=5)throw new AssertionError("Unexpected bank size");
+  if(total!=488||bonus!=40||practice!=5)throw new AssertionError("Unexpected bank size");
   if(!BookBank.get(25,0).answer.equals("5,0")||BookBank.get(25,0).page!=64)throw new AssertionError("VBT p64 first exercise");
   Map<String,String> sourceChecks=new HashMap<>();
+  sourceChecks.put("35.1.85.2.1","500");sourceChecks.put("34.2.84.4.1","50");sourceChecks.put("35.1.86.4.1","100");
   sourceChecks.put("34.2.83.1.3","38");sourceChecks.put("35.2.86.2.1","38");sourceChecks.put("43.1.109.1.1","2");sourceChecks.put("43.1.109.1.7","3");sourceChecks.put("43.1.109.1.8","11");sourceChecks.put("44.2.115.3.3","600");
   for(int l=25;l<=44;l++)for(BookBank.Q q:BookBank.lesson(l))if(sourceChecks.containsKey(q.id())){if(!q.answer.equals(sourceChecks.remove(q.id())))throw new AssertionError("Source "+q.id());}
   if(!sourceChecks.isEmpty())throw new AssertionError("Missing corrected source tasks "+sourceChecks);

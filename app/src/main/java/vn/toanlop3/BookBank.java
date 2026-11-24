@@ -1,7 +1,7 @@
 package vn.toanlop3;
 import java.util.*;
 public final class BookBank {
- public enum Kind {NUMBER,CHOICE,MULTI,DIVISION,MULTIPLY,RULER,SCALE,BALANCE,CUP,THERMO,CUPS,CLINICAL,GEOMETRY,PRACTICE}
+ public enum Kind {NUMBER,CHOICE,MULTI,DIVISION,MULTIPLY,RULER,SCALE,BALANCE,CUP,THERMO,CUPS,CLINICAL,GEOMETRY,POUR,PRACTICE}
  public static final class Q {
    public final int lesson,period,page,exercise,part,a,b;
    public final Kind kind;
@@ -139,8 +139,10 @@ private static void l29(){
  add(29,2,75,1,2,Kind.DIVISION,"73 : 3","24,1","Chia từ trái sang phải; số dư nhỏ hơn số chia.","73 = 3 × 24 + 1; thương 24, dư 1.",new String[]{},73,3);
  add(29,2,75,1,3,Kind.DIVISION,"64 : 4","16,0","Chia từ trái sang phải; số dư nhỏ hơn số chia.","64 = 4 × 16; thương 16, dư 0.",new String[]{},64,4);
  add(29,2,75,1,4,Kind.DIVISION,"84 : 5","16,4","Chia từ trái sang phải; số dư nhỏ hơn số chia.","84 = 5 × 16 + 4; thương 16, dư 4.",new String[]{},84,5);
- add(29,2,75,2,1,Kind.NUMBER,"30 giảm 6 lần rồi thêm 7 đơn vị. Kết quả?","12","30 : 6 + 7","Đáp án: 12",new String[]{},0,0);
- add(29,2,75,2,2,Kind.NUMBER,"21 gấp 2 lần rồi giảm mấy lần để còn 7?","6","21 × 2 = 42; 42 : 7 = 6.","Đáp án: 6",new String[]{},0,0);
+ add(29,2,75,2,3,Kind.NUMBER,"30 giảm 6 lần được bao nhiêu?","5","30 : 6","30 : 6 = 5.",new String[]{},0,0);
+ add(29,2,75,2,1,Kind.NUMBER,"30 giảm 6 lần rồi thêm 7 đơn vị. Kết quả?","12","30 : 6 + 7","30 : 6 = 5; 5 + 7 = 12.",new String[]{},0,0);
+ add(29,2,75,2,4,Kind.NUMBER,"21 gấp 2 lần được bao nhiêu?","42","21 × 2","21 × 2 = 42.",new String[]{},0,0);
+ add(29,2,75,2,2,Kind.NUMBER,"21 gấp 2 lần rồi giảm mấy lần để còn 7?","6","21 × 2 = 42; lấy 42 chia 7.","42 : 7 = 6.",new String[]{},0,0);
  add(29,2,75,3,1,Kind.NUMBER,"Cây tre 19 m. Cắt đoạn 3 m. Cắt được nhiều nhất bao nhiêu đoạn?","6","19 : 3 = 6 dư 1","Đáp án: 6",new String[]{},0,0);
  add(29,2,75,4,1,Kind.NUMBER,"Hôm qua bán 47 kg chà bông, hôm nay gấp 2 lần. Hôm nay bán bao nhiêu kg?","94","47 × 2","Đáp án: 94",new String[]{},0,0);
 }
@@ -227,7 +229,7 @@ private static void l34(){
  add(34,2,84,3,1,Kind.CHOICE,"A 500 ml, B 200 ml, C 300 ml, D 150 ml. Ca nào nhiều nước nhất?","A","Đọc kỹ đề, tìm phép tính hoặc quan hệ phù hợp.","Đáp án: A",new String[]{"A","B","C","D"},0,0);
  add(34,2,84,3,2,Kind.MULTI,"A 500 ml, B 200 ml, C 300 ml, D 150 ml. Chọn hai ca tổng 500 ml.","1,2","Tìm hai số cộng bằng 500.","Chọn: B, C",new String[]{"A","B","C","D"},0,0);
  add(34,2,84,3,3,Kind.NUMBER,"Ca A 500 ml, ca D 150 ml. A nhiều hơn D bao nhiêu ml?","350","500 − 150","Đáp án: 350",new String[]{},0,0);
- add(34,2,84,4,1,Kind.CHOICE,"Có ca 250 ml và 100 ml. Lấy đúng 50 ml từ chậu nước bằng cách nào?","Đầy ca 250, rót đầy ca 100 hai lần","250 − 100 − 100 = 50 ml","Đáp án: Đầy ca 250, rót đầy ca 100 hai lần",new String[]{"Đầy ca 250, rót đầy ca 100 hai lần","Đầy ca 250, rót ca 100 một lần","Đổ chung hai ca"},0,0);
+ add(34,2,84,4,1,Kind.POUR,"Dùng hai ca 250 ml và 100 ml để lấy đúng 50 ml nước.","50","Đổ đầy ca 250 ml, rót sang ca 100 ml; đổ hết ca nhỏ rồi rót tiếp.","250 − 100 − 100 = 50 ml.",new String[]{},250,100);
 }
 private static void l35(){
  add(35,1,85,1,1,Kind.NUMBER,"832 − 228 = ? mm","604","Tính theo đúng thứ tự các phép tính.","832 − 228 = 604 mm",new String[]{},0,0);
@@ -236,19 +238,19 @@ private static void l35(){
  add(35,1,85,1,4,Kind.NUMBER,"57 − 37 + 50 = ? g","70","Tính theo đúng thứ tự các phép tính.","57 − 37 + 50 = 70 g",new String[]{},0,0);
  add(35,1,85,1,5,Kind.NUMBER,"215 + 37 = ? ml","252","Tính theo đúng thứ tự các phép tính.","215 + 37 = 252 ml",new String[]{},0,0);
  add(35,1,85,1,6,Kind.NUMBER,"32 − 15 + 80 = ? ml","97","Tính theo đúng thứ tự các phép tính.","32 − 15 + 80 = 97 ml",new String[]{},0,0);
- add(35,1,85,2,1,Kind.NUMBER,"Hai kiện hàng giống nhau cân bằng với 500 g và 300 g. Mỗi kiện nặng bao nhiêu gam?","400","(500 + 300) : 2","Đáp án: 400",new String[]{},0,0);
+ add(35,1,85,2,1,Kind.NUMBER,"Hai kiện hàng giống nhau cân bằng với hai quả cân 500 g. Mỗi kiện nặng bao nhiêu gam?","500","Cộng hai quả cân rồi chia cho 2.","(500 + 500) : 2 = 500 g.",new String[]{},0,0);
  add(35,1,85,2,2,Kind.NUMBER,"Cốc và 50 g cân bằng 200 g và 100 g. Cốc nặng bao nhiêu gam?","250","200 + 100 − 50","Đáp án: 250",new String[]{},0,0);
  add(35,1,85,3,1,Kind.NUMBER,"42 : 2 = ? mm","21","Tính theo đúng thứ tự các phép tính.","42 : 2 = 21 mm",new String[]{},0,0);
  add(35,1,85,3,2,Kind.NUMBER,"42 × 2 = ? mm","84","Tính theo đúng thứ tự các phép tính.","42 × 2 = 84 mm",new String[]{},0,0);
  add(35,1,85,3,3,Kind.NUMBER,"72 : 3 = ? mm","24","Tính theo đúng thứ tự các phép tính.","72 : 3 = 24 mm",new String[]{},0,0);
  add(35,1,85,3,4,Kind.NUMBER,"38 × 2 = ? mm","76","Tính theo đúng thứ tự các phép tính.","38 × 2 = 76 mm",new String[]{},0,0);
- add(35,1,86,4,1,Kind.CHOICE,"Có cốc 250 ml và 400 ml. Lấy đúng 100 ml bằng cách nào?","Rót 2 cốc 250 vào cốc 400, giữ phần dư","250 + 250 − 400 = 100","Đáp án: Rót 2 cốc 250 vào cốc 400, giữ phần dư",new String[]{"Rót 2 cốc 250 vào cốc 400, giữ phần dư","Rót 400 sang 250 một lần","Đầy 250 rồi đổ hết"},0,0);
+ add(35,1,86,4,1,Kind.POUR,"Dùng hai cốc 250 ml và 400 ml để lấy đúng 100 ml nước.","100","Rót hai cốc 250 ml vào cốc 400 ml. Giữ phần còn lại ở cốc nhỏ.","250 + 250 − 400 = 100 ml.",new String[]{},250,400);
  add(35,2,86,1,1,Kind.NUMBER,"24 × 4 = ? mm","96","Tính theo đúng thứ tự các phép tính.","24 × 4 = 96 mm",new String[]{},0,0);
  add(35,2,86,1,2,Kind.NUMBER,"96 : 3 = ? mm","32","Tính theo đúng thứ tự các phép tính.","96 : 3 = 32 mm",new String[]{},0,0);
  add(35,2,86,1,3,Kind.NUMBER,"60 : 4 = ? ml","15","Tính theo đúng thứ tự các phép tính.","60 : 4 = 15 ml",new String[]{},0,0);
  add(35,2,86,1,4,Kind.NUMBER,"15 × 2 = ? ml","30","Tính theo đúng thứ tự các phép tính.","15 × 2 = 30 ml",new String[]{},0,0);
  add(35,2,86,2,1,Kind.CLINICAL,"Nhiệt kế trong hình chỉ bao nhiêu độ C?","38","Đọc vạch ngang với đầu cột màu.","Nhiệt độ trên hình: 38 °C.",new String[]{},38,0);
- add(35,2,86,2,2,Kind.CHOICE,"Trong bài toán, nhiệt độ của Nam là 38 °C. So với mức 37 °C, nhiệt độ ấy thế nào?","Cao hơn 1 °C","So sánh 38 với 37.","38 − 37 = 1 °C.",new String[]{"Cao hơn 1 °C","Bằng nhau","Thấp hơn 1 °C"},0,0);
+ add(35,2,86,2,2,Kind.CHOICE,"Trong bài toán, Nam đo được 38 °C. Theo em, Nam có bị sốt không?","Có, nhiệt độ cao hơn bình thường","So sánh số đo với nhiệt độ cơ thể thường gặp.","Trong tình huống bài toán, 38 °C là nhiệt độ sốt.",new String[]{"Có, nhiệt độ cao hơn bình thường","Không, nhiệt độ rất thấp","Không, 38 °C là nhiệt độ môi trường"},0,0);
  add(35,2,87,3,1,Kind.NUMBER,"Hộp sữa 250 ml, dùng 80 ml làm bánh. Còn bao nhiêu ml?","170","250 − 80","Đáp án: 170",new String[]{},0,0);
  add(35,2,87,4,1,Kind.NUMBER,"Hộp B và 100 g cân bằng 500 g. B nặng bao nhiêu gam?","400","500 − 100","Đáp án: 400",new String[]{},0,0);
  add(35,2,87,4,2,Kind.NUMBER,"Hộp A cân bằng hai hộp B 400 g. A nặng bao nhiêu gam?","800","400 × 2","Đáp án: 800",new String[]{},0,0);
@@ -438,9 +440,12 @@ private static void l41(){
  add(41,2,104,3,3,Kind.CHOICE,"839 : 4 = 29 (dư 3)","Sai","Tính lại để kiểm tra.","839 : 4 = 209 (dư 3)",new String[]{"Đúng","Sai"},0,0);
  add(41,2,104,3,4,Kind.CHOICE,"740 : 8 = 92 (dư 4)","Đúng","Tính lại để kiểm tra.","740 = 8 × 92 + 4",new String[]{"Đúng","Sai"},0,0);
  add(41,2,104,4,1,Kind.NUMBER,"132 quả táo, mỗi khay 6 quả. Xếp được bao nhiêu khay?","22","132 : 6","Đáp án: 22",new String[]{},0,0);
- add(41,2,104,5,1,Kind.NUMBER,"1□3 × 6 = 61□. Tìm số bị nhân.","103","Thử chữ số vào từng ô, kiểm tra tích.","Đáp án: 103",new String[]{},0,0);
- add(41,2,104,5,2,Kind.NUMBER,"4□ × 7 có tích tận cùng bằng 8. Tìm thừa số hai chữ số.","44","Thử chữ số vào từng ô, kiểm tra tích.","Đáp án: 44",new String[]{},0,0);
- add(41,2,104,5,3,Kind.NUMBER,"□□5 × 3 = 64□. Tìm thừa số ba chữ số.","215","Thử chữ số vào từng ô, kiểm tra tích.","Đáp án: 215",new String[]{},0,0);
+ add(41,2,104,5,1,Kind.NUMBER,"1□3 × 6 = 61□. Tìm số bị nhân.","103","Thử chữ số, kiểm tra tích.","103 × 6 = 618.",new String[]{},0,0);
+ add(41,2,104,5,4,Kind.NUMBER,"103 × 6 = 61□. Điền chữ số cuối của tích.","8","Nhân 103 với 6.","103 × 6 = 618.",new String[]{},0,0);
+ add(41,2,104,5,2,Kind.NUMBER,"4□ × 7 = □□8. Tìm thừa số hai chữ số.","44","Chữ số hàng đơn vị nhân 7 phải tận cùng bằng 8.","44 × 7 = 308.",new String[]{},0,0);
+ add(41,2,104,5,5,Kind.NUMBER,"44 × 7 = ? (điền cả tích).","308","Nhân hàng đơn vị, nhớ sang hàng chục.","44 × 7 = 308.",new String[]{},0,0);
+ add(41,2,104,5,3,Kind.NUMBER,"□□5 × 3 = 64□. Tìm thừa số ba chữ số.","215","Thử chữ số, kiểm tra tích.","215 × 3 = 645.",new String[]{},0,0);
+ add(41,2,104,5,6,Kind.NUMBER,"215 × 3 = 64□. Điền chữ số cuối của tích.","5","5 × 3 = 15.","215 × 3 = 645.",new String[]{},0,0);
  add(41,3,104,1,1,Kind.NUMBER,"181 × 4 = ?","724","Tính theo đúng thứ tự các phép tính.","181 × 4 = 724",new String[]{},0,0);
  add(41,3,104,1,2,Kind.NUMBER,"806 : 2 = ?","403","Tính theo đúng thứ tự các phép tính.","806 : 2 = 403",new String[]{},0,0);
  add(41,3,104,1,3,Kind.NUMBER,"465 : 7 dư bao nhiêu?","3","465 = 7 × 66 + 3","Đáp án: 3",new String[]{},0,0);

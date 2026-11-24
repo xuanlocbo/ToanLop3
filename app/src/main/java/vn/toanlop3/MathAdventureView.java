@@ -27,7 +27,7 @@ final class MathAdventureView extends ViewGroup {
  private final ArrayList<RectF> layout=new ArrayList<>();private final ArrayList<Float> fontSizes=new ArrayList<>();
  private final ArrayList<Button> options=new ArrayList<>();private final TextView[] fields=new TextView[2];
  private final ArrayList<RectF> platforms=new ArrayList<>();
- private TextView feedback;private InstrumentView instrument;private AppleLabView grouping;
+ private TextView feedback;private InstrumentView instrument;private AppleLabView grouping;private WaterLabView water;
  private ValueAnimator collectMotion;private float gemX,gemY,gemT;private String gem="";
  private float scale=1,ox,oy,heroX,heroY,hop,bridge,celebration;private boolean faceRight=true;
  private ValueAnimator motion;private int lastTap=-1;
@@ -37,7 +37,7 @@ final class MathAdventureView extends ViewGroup {
   if(pig==null)pig=BitmapFactory.decodeResource(getResources(),R.drawable.mascot);if(chest==null)chest=BitmapFactory.decodeResource(getResources(),R.drawable.treasure);
   int[] ids={R.drawable.world_0,R.drawable.world_1,R.drawable.world_2,R.drawable.world_3};if(worlds[theme]==null)worlds[theme]=BitmapFactory.decodeResource(getResources(),ids[theme]);
   setWillNotDraw(false);setBackgroundColor(0xff65c8ef);setClickable(true);
-  heroX=s.solved?1240:110+Math.min(.85f,s.player)*1000;heroY=770;bridge=s.solved?1:0;build();
+  heroX=s.solved?1240:110+Math.max(0,Math.min(1,s.player))*1005;heroY=770;bridge=s.solved?1:0;build();
  }
  private void place(View v,RectF rect,float textSize){layout.add(rect);fontSizes.add(textSize);addView(v);}
  private RectF r(float x,float y,float w,float h){return new RectF(x,y,x+w,y+h);}
@@ -55,13 +55,14 @@ final class MathAdventureView extends ViewGroup {
   label("★ "+s.completed()+"/"+s.count(),r(1191,12,233,64),33,0xff95485e,true);
  }
  private void build(){
-  removeAllViews();layout.clear();fontSizes.clear();options.clear();platforms.clear();instrument=null;grouping=null;feedback=null;Arrays.fill(fields,null);header();
+  removeAllViews();layout.clear();fontSizes.clear();options.clear();platforms.clear();instrument=null;grouping=null;water=null;feedback=null;Arrays.fill(fields,null);header();
   if(s.solved){solved();requestLayout();invalidate();return;}
   int len=q.prompt.length();boardBottom=len>145?290:len>82?265:225;
   float font=len>145?31:len>95?34:len>50?39:len>20?46:60;
   TextView prompt=text(q.prompt,INK,true);prompt.setMaxLines(4);place(prompt,r(55,110,1193,boardBottom-115),font);
   action("?","Gợi ý",r(1280,113,118,103),52,false,()->{s.hint=true;host.save(true);refreshFeedback();});
   if(q.kind==BookBank.Kind.PRACTICE){practice();}
+  else if(q.kind==BookBank.Kind.POUR){waterPuzzle();}
   else if(q.kind==BookBank.Kind.CHOICE||q.kind==BookBank.Kind.GEOMETRY||q.kind==BookBank.Kind.MULTI){choices();}
   else numbers();
   feedback=text("",0xff862d68,true);feedback.setMaxLines(2);place(feedback,r(275,716,720,78),25);refreshFeedback();
@@ -79,6 +80,17 @@ final class MathAdventureView extends ViewGroup {
   action("Đã thực hành","Xác nhận thực hành",r(995,boardBottom+230,370,112),36,true,()->host.practice(()->submit(true,-1)));
   action("Cách làm","Hướng dẫn thực hành",r(350,boardBottom+230,320,112),34,false,()->{s.hint=true;host.save(true);refreshFeedback();});
  }
+ private void waterPuzzle(){
+  float top=boardBottom+12;
+  water=new WaterLabView(getContext(),q,s);place(water,r(30,top,585,390),0);
+  String[] names={"Đầy ca A","Đầy ca B","Đổ hết A","Đổ hết B","A → B","B → A"};
+  for(int i=0;i<6;i++){final int operation=i;action(names[i],names[i],r(640+(i%2)*375,top+8+(i/2)*104,360,94),34,false,()->{
+   int[] next=WaterPuzzle.apply(q.a,q.b,s.liquidA,s.liquidB,operation);
+   s.liquidA=next[0];s.liquidB=next[1];water.invalidate();host.sound(0);host.save(true);move(operation%2==0?720:1000,false,true);
+  });}
+  action("Kiểm tra","Kiểm tra đáp án",r(1005,top+325,365,90),34,true,()->submit(WaterPuzzle.solved(s.liquidA,s.liquidB,Integer.parseInt(q.answer)),-1));
+  action("Làm lại","Làm lại ca nước",r(640,top+325,345,90),33,false,()->{s.liquidA=s.liquidB=0;water.invalidate();host.save(true);});
+ }
  private boolean gauge(){switch(q.kind){case RULER:case BALANCE:case SCALE:case CUP:case THERMO:case CUPS:case CLINICAL:return true;default:return false;}}
  private boolean multi(){return q.kind==BookBank.Kind.MULTI;}
  private void choices(){
@@ -94,7 +106,7 @@ final class MathAdventureView extends ViewGroup {
   float gap=12,h=Math.min(143,(space-(rows-1)*gap)/Math.max(1,rows));h=Math.max(84,h);
   float w=(available-(cols-1)*14)/cols;
   for(int i=0;i<n;i++){final int idx=i;float x=left+(i%cols)*(w+14),y=start+(i/cols)*(h+gap);RectF rect=r(x,y,w,h);String opt=q.options[i];
-   Button b=button(opt,(multi()?"Chọn ":"Đáp án ")+opt,false,()->{float target=rect.centerX();if(multi()){if(!s.selected.add(idx))s.selected.remove(idx);refreshOptions();if(grouping!=null)grouping.plates(idx+2);move(target,false,true);host.sound(0);host.save(true);}else{submit(q.check(opt),idx);}});b.setTag(s.selected.contains(i)?"selected":"gold");place(b,rect,opt.length()>48?27:opt.length()>23?32:40);options.add(b);platforms.add(rect);
+   Button b=button(opt,(multi()?"Chọn ":"Đáp án ")+opt,false,()->{float target=rect.centerX();if(multi()){if(!s.selected.add(idx))s.selected.remove(idx);refreshOptions();if(grouping!=null)grouping.plates(idx+2);move(target,false,true);host.sound(0);host.save(true);}else{submit(q.check(opt),idx);}});b.setTag(s.selected.contains(i)?"selected":"gold");if(s.selected.contains(i))b.setText("✓ "+opt);place(b,rect,opt.length()>48?27:opt.length()>23?32:40);options.add(b);platforms.add(rect);
   }
   if(multi()){label("Chọn tất cả đáp án đúng",r(left,boardBottom+4,available,36),24,0xff55365d,true);action("Kiểm tra","Kiểm tra đáp án",r(1006,634,375,76),32,true,()->{if(!s.selected.isEmpty())submit(q.check(s.input()),-1);else message("Chọn ít nhất một đáp án nhé!");});}
  }
@@ -136,7 +148,7 @@ final class MathAdventureView extends ViewGroup {
  }
  @Override protected void dispatchDraw(Canvas c){super.dispatchDraw(c);if(!gem.isEmpty()&&gemT<1){c.save();c.translate(ox,oy);c.scale(scale,scale);float rr=37*(1-gemT*.25f);gradient(c,r(gemX-rr,gemY-rr,2*rr,2*rr),18,0xfffff7a4,0xffffb23f,0xffb7792d,4);p.setStyle(Paint.Style.FILL);p.setColor(INK);p.setTypeface(Typeface.create("sans-serif-medium",Typeface.BOLD));p.setTextSize(47);p.setTextAlign(Paint.Align.CENTER);c.drawText(gem,gemX,gemY+15,p);c.restore();}}
  private void refreshFields(){for(int i=0;i<fields.length;i++)if(fields[i]!=null){fields[i].setText(s.draft[i].isEmpty()?"?":s.draft[i]);fields[i].setBackground(bg(0xfffffdf7,0xffffe6f4,s.field==i?PINK:0xffc495b5,Math.max(6,22*scale)));}}
- private void refreshFeedback(){if(feedback==null)return;String f=s.hint?q.hint:s.wrong>0?"Thử lại nhé! Không mất sao.":"";feedback.setText(f);feedback.setBackground(f.isEmpty()?null:bg(0xfffff9dc,0xffffe6a2,0xffedb86c,Math.max(6,16*scale)));}
+ private void refreshFeedback(){if(feedback==null)return;String f=s.wrong>0?"Thử lại nhé! "+(s.hint?q.hint:"Không mất sao."):s.hint?q.hint:"";feedback.setText(f);feedback.setBackground(f.isEmpty()?null:bg(0xfffff9dc,0xffffe6a2,0xffedb86c,Math.max(6,16*scale)));}
  private void message(String msg){if(feedback!=null){feedback.setText(msg);feedback.setBackground(bg(0xfffff8da,0xffffe2ad,0xffe5ae65,Math.max(6,16*scale)));}}
  private void submit(boolean ok,int chosen){
   if(s.solved)return;lastTap=chosen;
@@ -147,32 +159,30 @@ final class MathAdventureView extends ViewGroup {
   * prevents moving to the chest, independent of math input, and is saved in the checkpoint. */
  private void move(float target,boolean success,boolean jump){
   if(motion!=null)motion.cancel();float from=heroX;target=Math.max(110,Math.min(success?1265:1115,target));final float dest=target;faceRight=dest>=from;
-  if(!success){s.player=Math.max(0,Math.min(.85f,(dest-110)/1000));host.save(false);}
+  if(!success){s.player=Math.max(0,Math.min(1f,(dest-110)/1005f));host.save(false);}
   motion=ValueAnimator.ofFloat(0,1);motion.setDuration(success?1050:Math.max(230,Math.min(550,(long)(Math.abs(dest-from)*.57f))));motion.setInterpolator(new DecelerateInterpolator(1.1f));
-  motion.addUpdateListener(a->{float t=(float)a.getAnimatedValue();heroX=from+(dest-from)*t;hop=jump?(float)Math.sin(Math.PI*t)*(success?150:75):0;if(success){bridge=Math.min(1,t*1.8f);celebration=Math.max(0,1-t*.7f);}invalidate();});motion.start();
+  motion.addUpdateListener(a->{float t=(float)a.getAnimatedValue();heroX=success?from+(dest-from)*Math.max(0,(t-.32f)/.68f):from+(dest-from)*t;hop=jump?(float)Math.sin(Math.PI*t)*(success?150:75):0;if(success){bridge=Math.min(1,t/.32f);celebration=Math.max(0,1-t*.7f);}invalidate();});motion.start();
  }
  @Override public boolean onTouchEvent(android.view.MotionEvent e){if(e.getAction()==MotionEvent.ACTION_DOWN)return true;if(e.getAction()==MotionEvent.ACTION_UP){float x=(e.getX()-ox)/scale,y=(e.getY()-oy)/scale;if(y>boardBottom&&!s.solved){move(x,false,true);host.sound(3);}performClick();return true;}return true;}
  @Override public boolean performClick(){super.performClick();return true;}
  @Override protected void onMeasure(int ws,int hs){int w=MeasureSpec.getSize(ws),h=MeasureSpec.getSize(hs);setMeasuredDimension(w,h);scale=Math.min(w/W,h/H);ox=(w-W*scale)/2;oy=(h-H*scale)/2;
-  for(int i=0;i<layout.size();i++){View child=getChildAt(i);RectF rect=layout.get(i);float font=fontSizes.get(i);if(child instanceof TextView&&font>0)((TextView)child).setTextSize(TypedValue.COMPLEX_UNIT_PX,Math.max(10,font*scale));if(child instanceof Button)style((Button)child);child.measure(MeasureSpec.makeMeasureSpec(Math.max(1,Math.round(rect.width()*scale)),MeasureSpec.EXACTLY),MeasureSpec.makeMeasureSpec(Math.max(1,Math.round(rect.height()*scale)),MeasureSpec.EXACTLY));}refreshFields();}
+  for(int i=0;i<layout.size();i++){View child=getChildAt(i);RectF rect=layout.get(i);float font=fontSizes.get(i);if(child instanceof TextView&&font>0){TextView tv=(TextView)child;tv.setTextSize(TypedValue.COMPLEX_UNIT_PX,Math.max(10,font*scale));if(android.os.Build.VERSION.SDK_INT>=26){int max=Math.max(10,Math.round(font*scale)),min=Math.max(9,Math.round(font*.76f*scale));if(max>min)tv.setAutoSizeTextTypeUniformWithConfiguration(min,max,1,TypedValue.COMPLEX_UNIT_PX);}}if(child instanceof Button)style((Button)child);child.measure(MeasureSpec.makeMeasureSpec(Math.max(1,Math.round(rect.width()*scale)),MeasureSpec.EXACTLY),MeasureSpec.makeMeasureSpec(Math.max(1,Math.round(rect.height()*scale)),MeasureSpec.EXACTLY));}refreshFields();}
  @Override protected void onLayout(boolean changed,int l,int t,int r,int b){for(int i=0;i<layout.size();i++){RectF z=layout.get(i);View v=getChildAt(i);int x=Math.round(ox+z.left*scale),y=Math.round(oy+z.top*scale);v.layout(x,y,x+v.getMeasuredWidth(),y+v.getMeasuredHeight());}}
  private void color(int col){p.setShader(null);p.setColor(col);p.setStyle(Paint.Style.FILL);}
  private void gradient(Canvas c,RectF r,float rad,int a,int b,int outline,float stroke){p.setStyle(Paint.Style.FILL);p.setAlpha(255);p.setShader(new LinearGradient(r.left,r.top,r.left,r.bottom,a,b,Shader.TileMode.CLAMP));c.drawRoundRect(r,rad,rad,p);p.setShader(null);if(outline!=0){p.setStyle(Paint.Style.STROKE);p.setColor(outline);p.setStrokeWidth(stroke);c.drawRoundRect(r,rad,rad,p);p.setStyle(Paint.Style.FILL);}}
  private void art(Canvas c,Bitmap b,RectF r){if(b==null)return;p.setShader(null);p.setStyle(Paint.Style.FILL);p.setAlpha(255);p.setColor(Color.WHITE);c.drawBitmap(b,null,r,p);}
  private void star(Canvas c,float x,float y,float size){Path z=new Path();for(int i=0;i<10;i++){double a=i*Math.PI/5-Math.PI/2;float rr=i%2==0?size:size*.46f;float xx=x+(float)Math.cos(a)*rr,yy=y+(float)Math.sin(a)*rr;if(i==0)z.moveTo(xx,yy);else z.lineTo(xx,yy);}z.close();p.setAlpha(255);p.setShader(new LinearGradient(x,y-size,x,y+size,0xfffff7b0,0xffffaf18,Shader.TileMode.CLAMP));p.setStyle(Paint.Style.FILL);c.drawPath(z,p);p.setShader(null);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(3);p.setColor(0xffb57716);c.drawPath(z,p);p.setStyle(Paint.Style.FILL);}
  private void worldPath(Canvas c){
-  // Draw the traversable foreground and a visible unfinished gap. Each math answer changes
-  // the actual route, not a decorative progress meter.
-  if(theme==0){
-   // Existing original river scene has wooden bridge halves around the central gap.
-   int pieces=Math.round(7*bridge);for(int i=0;i<pieces;i++){float x=628+i*36;gradient(c,r(x,662,40,32),5,0xffffcf7b,0xffa65c32,0xff804d2b,2);}
-  }else if(theme==2){
-   for(int i=0;i<5;i++){float x=205+i*245;boolean lit=s.solved||i<2;gradient(c,r(x,674,160,48),18,lit?0xffc7ef94:0xffded2eb,lit?0xff74ad55:0xffa99abb,0xff557c83,3);}
-  }else{
-   for(int i=0;i<9;i++){float x=55+i*155;gradient(c,r(x,753,132,32),11,0xffffe5a1,0xffd19749,0xffb47e3b,2);}
-  }
-  if(!s.solved){gradient(c,r(1260,621,91,125),13,0xffd4b28d,0xffa77959,0xff73583c,4);gradient(c,r(1286,666,40,50),7,0xffffdf6a,0xffdba120,0xff9c711e,3);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(8);p.setColor(0xffc18d28);c.drawArc(1290,644,1323,682,180,180,false,p);p.setStyle(Paint.Style.FILL);}
-  else {art(c,chest,r(1250,507,150,148));star(c,1320,488,38);}
+  // A continuous, physically aligned foreground deck. The last gap cannot be
+  // traversed until a correct answer constructs its planks.
+  int top=theme==2?0xffb9ef9b:0xffffdc87, bottom=theme==2?0xff569b50:0xffb77a42;
+  gradient(c,r(0,770,1130,40),8,top,bottom,0xff8a6240,2);
+  gradient(c,r(1210,770,230,40),8,top,bottom,0xff8a6240,2);
+  for(int i=0;i<23;i++){float x=15+i*49;color(0x55754a28);c.drawRect(x,777,x+3,805,p);}
+  int pieces=Math.round(4*bridge);
+  for(int i=0;i<pieces;i++)gradient(c,r(1130+i*20,770,21,40),4,top,bottom,0xff8a6240,2);
+  if(!s.solved){gradient(c,r(1215,640,104,130),13,0xffd4b28d,0xffa77959,0xff73583c,4);gradient(c,r(1248,686,40,50),7,0xffffdf6a,0xffdba120,0xff9c711e,3);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(8);p.setColor(0xffc18d28);c.drawArc(1250,662,1286,700,180,180,false,p);p.setStyle(Paint.Style.FILL);}
+  else {art(c,chest,r(1255,610,150,148));star(c,1330,585,38);}
  }
  @Override protected void onDraw(Canvas c){super.onDraw(c);c.save();c.translate(ox,oy);c.scale(scale,scale);art(c,worlds[theme],r(0,0,W,H));
   // Header and question sign share the same illustrated scene and leave the terrain visible.
@@ -185,7 +195,7 @@ final class MathAdventureView extends ViewGroup {
    for(RectF z:platforms){gradient(c,r(z.left+4,z.bottom-14,z.width()-8,27),10,0xffc48b55,0xff98683b,0xff784d35,2);}
   }
   worldPath(c);
-  float h=s.solved?250:205,w=pig==null?140:h*pig.getWidth()/pig.getHeight();float foot=heroY-hop;
+  float h=s.solved?220:173,w=pig==null?140:h*pig.getWidth()/pig.getHeight();float foot=heroY-hop;
   color(0x480b4528);c.drawOval(heroX-w*.46f,heroY-8,heroX+w*.46f,heroY+13,p);
   c.save();if(!faceRight){c.scale(-1,1,heroX,0);}art(c,pig,r(heroX-w/2,foot-h,w,h));c.restore();
   // Correct-answer burst and a visible treasure. Drawing bitmap always resets paint alpha.
