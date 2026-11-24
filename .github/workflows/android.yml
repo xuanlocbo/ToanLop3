@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: android-build-main
+  group: android-verified-build
   cancel-in-progress: false
 jobs:
   build:
@@ -22,38 +22,66 @@ jobs:
         with:
           packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
       - name: Install Android SDK
-        run: |
-          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
-      - name: Verify question bank
+      - name: Verify entire question bank and puzzles
         run: |
           mkdir -p /tmp/math-check
-          javac -encoding UTF-8 -d /tmp/math-check app/src/main/java/vn/toanlop3/Curriculum.java app/src/main/java/vn/toanlop3/BookBank.java tests/CurriculumCheck.java tests/BookBankCheck.java app/src/main/java/vn/toanlop3/WaterPuzzle.java tests/WaterPuzzleCheck.java
-          java -cp /tmp/math-check CurriculumCheck
-          java -cp /tmp/math-check BookBankCheck
-          java -cp /tmp/math-check WaterPuzzleCheck
+          javac -encoding UTF-8 -d /tmp/math-check app/src/main/java/vn/toanlop3/{Curriculum,BookBank,WaterPuzzle,ShapePuzzle}.java tests/{CurriculumCheck,BookBankCheck,WaterPuzzleCheck,ShapePuzzleCheck,BankAudit}.java
+          for check in CurriculumCheck BookBankCheck WaterPuzzleCheck ShapePuzzleCheck BankAudit; do java -cp /tmp/math-check "$check"; done
           python3 tests/check_game_assets.py
-      - name: Restore debug signing key
-        uses: actions/cache@v4
-        with:
-          path: ~/.android/debug.keystore
-          key: toanlop3-debug-key-v1
       - name: Build native APK
-        run: gradle --no-daemon :app:assembleDebug :app:lintDebug
-      - name: Verify APK signature
+        run: gradle --no-daemon :app:assembleRelease :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug :app:lintRelease
+      - name: Verify package and signing identity
+        id: sign
+        env:
+          SIGNING_JSON: ${{ secrets.TOANLOP3_SIGNING }}
         run: |
-          APK=app/build/outputs/apk/debug/app-debug.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
-          mkdir -p dist
-          cp "$APK" dist/ToanLop3-0.6.0.apk
-          python3 tests/check_game_assets.py "$APK"
-          sha256sum dist/ToanLop3-0.6.0.apk
-      - uses: actions/upload-artifact@v4
+          set -euo pipefail
+          mkdir -p dist/build dist/qa dist/published
+          BT="$ANDROID_HOME/build-tools/35.0.0"
+          UNSIGNED=app/build/outputs/apk/release/app-release-unsigned.apk
+          cp "$UNSIGNED" dist/build/ToanLop3-0.6.1-unsigned.apk
+          cp "$BT/lib/apksigner.jar" dist/build/apksigner.jar
+          printf '%s\n' "$GITHUB_SHA" > dist/build/commit.txt
+          sha256sum dist/build/ToanLop3-0.6.1-unsigned.apk > dist/build/unsigned-sha256.txt
+          if [ -n "${SIGNING_JSON:-}" ]; then
+            KEYDIR="$(mktemp -d)"
+            export KEYDIR
+            trap 'rm -rf "$KEYDIR"' EXIT
+            python3 - <<'PY'
+          import base64, json, os
+          from pathlib import Path
+          os.umask(0o077)
+          j=json.loads(os.environ['SIGNING_JSON'])
+          p=Path(os.environ['KEYDIR'])
+          (p/'key.p12').write_bytes(base64.b64decode(j['keystore_b64'],validate=True))
+          (p/'password').write_text(j['password'])
+          PY
+            "$BT/apksigner" sign --ks "$KEYDIR/key.p12" --ks-key-alias toanlop3 --ks-pass "file:$KEYDIR/password" --key-pass "file:$KEYDIR/password" --out dist/published/ToanLop3-0.6.1.apk "$UNSIGNED"
+            "$BT/apksigner" verify --verbose --print-certs dist/published/ToanLop3-0.6.1.apk > dist/build/signature.txt
+            grep -Fqi "53c9a53416c3ba400c645417be621254a79c22553be31188548afcc642cba57b" dist/build/signature.txt
+            cp dist/published/ToanLop3-0.6.1.apk dist/build/qa-release.apk
+            echo "stable=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::Permanent signing secret is absent. No official signed release will be published; only the build for testing/local signing."
+            "$BT/apksigner" sign --ks "$HOME/.android/debug.keystore" --ks-pass pass:android --key-pass pass:android --ks-key-alias androiddebugkey --out dist/build/qa-release.apk "$UNSIGNED"
+            "$BT/apksigner" verify --verbose --print-certs dist/build/qa-release.apk > dist/build/signature.txt
+            echo "stable=false" >> "$GITHUB_OUTPUT"
+          fi
+          "$BT/aapt" dump badging dist/build/qa-release.apk > dist/build/package.txt
+          grep -F "package: name='vn.toanlop3' versionCode='8' versionName='0.6.1'" dist/build/package.txt
+          if grep -q 'application-debuggable' dist/build/package.txt; then exit 1; fi
+          python3 tests/check_game_assets.py dist/build/qa-release.apk
+          sha256sum dist/build/qa-release.apk > dist/build/qa-sha256.txt
+          cat dist/build/package.txt | head -8
+      - name: Upload unverified build for local signing
+        uses: actions/upload-artifact@v4
         with:
-          name: ToanLop3-APK
-          path: dist/ToanLop3-0.6.0.apk
+          name: ToanLop3-build-v0.6.1
+          path: dist/build/
           if-no-files-found: error
           retention-days: 30
       - name: Enable KVM
@@ -61,7 +89,7 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - name: Native Android emulator smoke test
+      - name: Native Android emulator smoke test and full UI sweep
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
@@ -70,12 +98,25 @@ jobs:
           profile: pixel_2
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
-          script: python3 tests/native_smoke.py
+          script: |
+            python3 tests/native_smoke.py
+            adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+            adb shell am instrument -w vn.toanlop3.test/vn.toanlop3.QaRunner | tee dist/qa/full-sweep.txt
+            grep -F 'QA_SWEEP_PASS' dist/qa/full-sweep.txt
+            python3 tests/release_smoke.py
       - name: Upload runtime QA
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ToanLop3-QA
+          name: ToanLop3-QA-v0.6.1
           path: dist/qa/
           if-no-files-found: ignore
-          retention-days: 7
+          retention-days: 30
+      - name: Publish verified stable APK
+        if: steps.sign.outputs.stable == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ToanLop3-APK-v0.6.1
+          path: dist/published/ToanLop3-0.6.1.apk
+          if-no-files-found: error
+          retention-days: 30

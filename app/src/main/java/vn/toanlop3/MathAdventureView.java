@@ -27,7 +27,7 @@ final class MathAdventureView extends ViewGroup {
  private final ArrayList<RectF> layout=new ArrayList<>();private final ArrayList<Float> fontSizes=new ArrayList<>();
  private final ArrayList<Button> options=new ArrayList<>();private final TextView[] fields=new TextView[2];
  private final ArrayList<RectF> platforms=new ArrayList<>();
- private TextView feedback;private InstrumentView instrument;private AppleLabView grouping;private WaterLabView water;
+ private TextView feedback;private InstrumentView instrument;private AppleLabView grouping;private WaterLabView water;private DrawingLabView drawing;
  private ValueAnimator collectMotion;private float gemX,gemY,gemT;private String gem="";
  private float scale=1,ox,oy,heroX,heroY,hop,bridge,celebration;private boolean faceRight=true;
  private ValueAnimator motion;private int lastTap=-1;
@@ -55,7 +55,7 @@ final class MathAdventureView extends ViewGroup {
   label("★ "+s.completed()+"/"+s.count(),r(1191,12,233,64),33,0xff95485e,true);
  }
  private void build(){
-  removeAllViews();layout.clear();fontSizes.clear();options.clear();platforms.clear();instrument=null;grouping=null;water=null;feedback=null;Arrays.fill(fields,null);header();
+  removeAllViews();layout.clear();fontSizes.clear();options.clear();platforms.clear();instrument=null;grouping=null;water=null;drawing=null;feedback=null;Arrays.fill(fields,null);header();
   if(s.solved){solved();requestLayout();invalidate();return;}
   int len=q.prompt.length();boardBottom=len>145?290:len>82?265:225;
   float font=len>145?31:len>95?34:len>50?39:len>20?46:60;
@@ -63,6 +63,7 @@ final class MathAdventureView extends ViewGroup {
   action("?","Gợi ý",r(1280,113,118,103),52,false,()->{s.hint=true;host.save(true);refreshFeedback();});
   if(q.kind==BookBank.Kind.PRACTICE){practice();}
   else if(q.kind==BookBank.Kind.POUR){waterPuzzle();}
+  else if(q.kind==BookBank.Kind.DRAW){drawingPuzzle();}
   else if(q.kind==BookBank.Kind.CHOICE||q.kind==BookBank.Kind.GEOMETRY||q.kind==BookBank.Kind.MULTI){choices();}
   else numbers();
   feedback=text("",0xff862d68,true);feedback.setMaxLines(2);place(feedback,r(275,716,720,78),25);refreshFeedback();
@@ -80,6 +81,14 @@ final class MathAdventureView extends ViewGroup {
   action("Đã thực hành","Xác nhận thực hành",r(995,boardBottom+230,370,112),36,true,()->host.practice(()->submit(true,-1)));
   action("Cách làm","Hướng dẫn thực hành",r(350,boardBottom+230,320,112),34,false,()->{s.hint=true;host.save(true);refreshFeedback();});
  }
+ private void drawingPuzzle(){
+  float top=boardBottom+10;
+  drawing=new DrawingLabView(getContext(),q,s,()->{host.save(true);host.sound(0);});place(drawing,r(22,top,1010,410),0);
+  action("Xóa đỉnh","Xóa đỉnh cuối",r(1060,top+20,345,105),34,false,()->{drawing.undo();host.save(true);});
+  action("Vẽ lại","Xóa hình đang vẽ",r(1060,top+138,345,105),34,false,()->{drawing.reset();host.save(true);});
+  action("Kiểm tra","Kiểm tra đáp án",r(1060,top+256,345,105),34,true,()->submit(ShapePuzzle.matches(q.a,s.drawing),-1));
+ }
+ private boolean visual(){return DiagramView.supports(q);}
  private void waterPuzzle(){
   float top=boardBottom+12;
   water=new WaterLabView(getContext(),q,s);place(water,r(30,top,585,390),0);
@@ -95,9 +104,9 @@ final class MathAdventureView extends ViewGroup {
  private boolean multi(){return q.kind==BookBank.Kind.MULTI;}
  private void choices(){
   boolean apples=q.kind==BookBank.Kind.MULTI&&q.lesson==25&&q.page==64&&q.exercise==3;
-  boolean diagram=q.kind==BookBank.Kind.GEOMETRY||apples;
+  boolean diagram=q.kind==BookBank.Kind.GEOMETRY||apples||visual();
   float left=apples?905:diagram?510:140,available=1380-left;
-  if(q.kind==BookBank.Kind.GEOMETRY){instrument=new InstrumentView(getContext(),q);place(instrument,r(34,boardBottom+22,455,282),0);}
+  if(q.kind==BookBank.Kind.GEOMETRY){instrument=new InstrumentView(getContext(),q);place(instrument,r(34,boardBottom+22,455,282),0);}else if(visual()){place(new DiagramView(getContext(),q),r(30,boardBottom+12,460,360),0);}
   if(apples){grouping=new AppleLabView(getContext(),s,()->host.save(true));place(grouping,r(20,boardBottom+12,855,380),0);}
   int n=q.options.length;boolean longText=Arrays.stream(q.options).anyMatch(x->x.length()>30);
   int cols=apples?1:longText?(diagram?1:2):Math.min(n,diagram?2:3);if(n==1)cols=1;
@@ -113,10 +122,12 @@ final class MathAdventureView extends ViewGroup {
  private void refreshOptions(){for(int i=0;i<options.size();i++){Button b=options.get(i);b.setTag(s.selected.contains(i)?"selected":"gold");b.setText((s.selected.contains(i)?"✓ ":"")+q.options[i]);style(b);}}
  private void numbers(){
   boolean div=q.kind==BookBank.Kind.DIVISION;
-  boolean measure=gauge();if(!div)s.field=0;
+  boolean measure=gauge()||visual();if(!div)s.field=0;
   float top=boardBottom+16;
   // Left area: actual math tool / written calculation and the answer slot(s).
-  if(measure){instrument=new InstrumentView(getContext(),q);place(instrument,r(20,top,515,220),0);if(instrument.canMeasure()){
+  if(visual()){place(new DiagramView(getContext(),q),r(20,top,515,220),0);}
+  else if(measure){instrument=new InstrumentView(getContext(),q);place(instrument,r(20,top,515,220),0);if(instrument.canMeasure()){
+    if(!s.draft[0].isEmpty())try{instrument.marker=Integer.parseInt(s.draft[0]);}catch(NumberFormatException ignored){}
     instrument.setClickable(true);instrument.setContentDescription("Dụng cụ đo tương tác");instrument.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
     instrument.setOnTouchListener((v,e)->{if(e.getAction()==MotionEvent.ACTION_DOWN)return true;if(e.getAction()==MotionEvent.ACTION_UP){Integer value=instrument.valueAt(e.getX(),e.getY());if(value!=null&&value>=0){s.draft[0]=Integer.toString(value);instrument.performClick();refreshFields();move(300,false,true);host.sound(0);host.save(true);}return true;}return true;});
    }

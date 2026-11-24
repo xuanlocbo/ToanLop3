@@ -76,10 +76,10 @@ final class ArtMapView extends ViewGroup {
   gradient(c,new RectF(1515,10,1618,105),45,0xffed86d8,0xff9b37b6,0xfffaf4ff,5);label(c,sound?"♫":"×",1567,76,52,Color.WHITE,true);
   for(int r=0;r<5;r++)for(int k=0;k<4;k++)node(c,number(r,k),NODES[r][k]);
   JourneyState s=core[lesson-25];label(c,"Bài "+lesson,1430,185,48,Color.WHITE,true);paragraph(c,Curriculum.title(lesson),new RectF(1244,224,1618,305),33,0xff242567);
-  label(c,s.finished()?"Chơi lại":s.cursor>0||s.solved?"Học tiếp":"Học & chơi",1452,491,37,Color.WHITE,true);
+  label(c,s.finished()?"Xem lại":s.cursor>0||s.solved?"Học tiếp":"Học & chơi",1452,491,37,Color.WHITE,true);
   paragraph(c,s.completed()+" / "+s.count()+" nhiệm vụ",new RectF(1260,539,1604,586),31,0xff29265e);
   gradient(c,new RectF(1263,594,1605,617),12,0xffc6c3d3,0xffa9a3b8,0xffa299ba,2);if(s.completed()>0)gradient(c,new RectF(1264,595,1264+340*s.completed()/(float)s.count(),616),11,0xffa6ef5f,0xff4aac29,0xff70b82b,2);
-  String detail=s.finished()?"Thử thách nâng cao  "+bonus[lesson-25].completed()+"/2":("Tiết "+s.current().period+" · Bài tập "+s.current().exercise);
+  String detail=s.completed()==s.count()?"Thử thách nâng cao  "+bonus[lesson-25].completed()+"/2":("Tiết "+s.current().period+" · Bài tập "+s.current().exercise);
   if(s.completed()==s.count())gradient(c,new RectF(1252,636,1612,706),25,0xffffe77d,0xfff2bd3c,0xffd68e27,3);
   paragraph(c,detail,new RectF(1260,643,1608,701),27,0xff392760);
   paragraph(c,"Tiến độ học tập: "+completed+" / 20 bài",new RectF(529,829,1088,864),27,0xff2c2963);

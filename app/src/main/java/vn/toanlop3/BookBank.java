@@ -1,7 +1,7 @@
 package vn.toanlop3;
 import java.util.*;
 public final class BookBank {
- public enum Kind {NUMBER,CHOICE,MULTI,DIVISION,MULTIPLY,RULER,SCALE,BALANCE,CUP,THERMO,CUPS,CLINICAL,GEOMETRY,POUR,PRACTICE}
+ public enum Kind {NUMBER,CHOICE,MULTI,DIVISION,MULTIPLY,RULER,SCALE,BALANCE,CUP,THERMO,CUPS,CLINICAL,GEOMETRY,POUR,DRAW,PRACTICE}
  public static final class Q {
    public final int lesson,period,page,exercise,part,a,b;
    public final Kind kind;
@@ -495,11 +495,15 @@ private static void l43(){
  add(43,1,109,1,4,Kind.GEOMETRY,"Trung điểm đoạn KH trong hình là điểm nào?","I","Trung điểm nằm giữa và cách đều hai đầu mút.","Trung điểm: I",new String[]{"K","I","H"},1,0);
  add(43,1,109,1,5,Kind.GEOMETRY,"Trung điểm đoạn BH trong hình là điểm nào?","K","Trung điểm nằm giữa và cách đều hai đầu mút.","Trung điểm: K",new String[]{"K","I","H"},1,0);
  add(43,1,109,1,6,Kind.GEOMETRY,"Trung điểm đoạn MN trong hình là điểm nào?","H","Trung điểm nằm giữa và cách đều hai đầu mút.","Trung điểm: H",new String[]{"K","I","H"},1,0);
- add(43,1,109,2,1,Kind.PRACTICE,"Vẽ lại tam giác, hình vuông, hình chữ nhật theo mẫu lưới ở VBT tr.109.","done","Thực hành với vở bài tập hoặc đồ dùng thật; nhờ người lớn kiểm tra.","Đếm đúng số ô, kiểm tra cạnh và góc.",new String[]{},0,0);
- add(43,1,110,3,1,Kind.MULTI,"Hình tròn tâm O: AB và CD đi qua O, hai đầu trên đường tròn. Chọn các đường kính.","0,1","Đường kính đi qua tâm.","Chọn: AB, CD",new String[]{"AB","CD","AC","OE"},0,0);
- add(43,1,110,3,2,Kind.MULTI,"Hình tròn tâm O, A, B, C, D, E trên đường tròn. Chọn các bán kính.","0,1,2,3,4","Bán kính nối tâm với đường tròn.","Chọn: OA, OB, OC, OD, OE",new String[]{"OA","OB","OC","OD","OE","AB"},0,0);
+ add(43,1,109,2,1,Kind.DRAW,"Vẽ lại hình tam giác theo mẫu trên lưới.","done","Chạm lần lượt ba đỉnh, rồi chạm lại đỉnh đầu để khép kín.","Tam giác có đáy 6 ô, cao 4 ô; đỉnh trên cách đầu trái 2 ô.",new String[]{},0,0);
+ add(43,1,109,2,2,Kind.DRAW,"Vẽ lại hình vuông theo mẫu trên lưới.","done","Đếm bốn ô cho mỗi cạnh, vẽ bốn đỉnh và khép kín.","Hình vuông có mỗi cạnh dài 4 ô.",new String[]{},1,0);
+ add(43,1,109,2,3,Kind.DRAW,"Vẽ lại hình chữ nhật theo mẫu trên lưới.","done","Đếm 3 ô ngang và 4 ô dọc.","Hình chữ nhật rộng 3 ô và cao 4 ô.",new String[]{},2,0);
+ add(43,1,110,3,1,Kind.MULTI,"Quan sát hình tròn tâm O. Chọn các đường kính.","0,1","Đường kính đi qua tâm, hai đầu nằm trên đường tròn.","AB và CD.",new String[]{"AB","CD","AC","OE"},0,0);
+ add(43,1,110,3,2,Kind.MULTI,"Quan sát hình tròn tâm O. Chọn các bán kính.","0,1,2,3,4","Bán kính nối tâm với một điểm trên đường tròn.","OA, OB, OC, OD và OE.",new String[]{"OA","OB","OC","OD","OE","AB"},0,0);
  add(43,1,110,3,3,Kind.NUMBER,"Đường kính AB gấp bán kính OB mấy lần?","2","Đường kính bằng hai bán kính.","Đáp án: 2",new String[]{},0,0);
- add(43,1,110,4,1,Kind.PRACTICE,"Đếm các khối lập phương nhỏ, khối trụ, khối cầu trong công trình ở VBT tr.110.","done","Thực hành với vở bài tập hoặc đồ dùng thật; nhờ người lớn kiểm tra.","Quan sát hình gốc, tính các khối phía trước và phía sau.",new String[]{},0,0);
+ add(43,1,110,4,1,Kind.NUMBER,"Quan sát công trình. Có bao nhiêu khối lập phương nhỏ?","20","Đếm lớp đế 4 × 4 và bốn khối ở góc.","16 + 4 = 20 khối lập phương nhỏ.",new String[]{},0,0);
+ add(43,1,110,4,2,Kind.NUMBER,"Quan sát công trình. Có bao nhiêu khối trụ?","2","Đếm khối trụ to và khối trụ nhỏ phía trên.","2 khối trụ.",new String[]{},0,0);
+ add(43,1,110,4,3,Kind.NUMBER,"Quan sát công trình. Có bao nhiêu khối cầu?","1","Nhìn ở đỉnh công trình.","1 khối cầu.",new String[]{},0,0);
  add(43,1,110,5,1,Kind.NUMBER,"Khối hộp ghép 4 × 2 × 2 khối lập phương, sơn mọi mặt ngoài. Có bao nhiêu khối được sơn 3 mặt?","8","Các khối góc được sơn 3 mặt.","Đáp án: 8",new String[]{},0,0);
  add(43,1,110,5,2,Kind.NUMBER,"Có bao nhiêu khối được sơn đúng 2 mặt?","8","16 − 8 = 8","Đáp án: 8",new String[]{},0,0);
  add(43,2,111,1,1,Kind.NUMBER,"Đường gấp khúc gồm 3 đoạn, mỗi đoạn 35 mm. Tổng chiều dài?","105","35 × 3","Đáp án: 105",new String[]{},0,0);
@@ -530,8 +534,9 @@ private static void l44(){
  add(44,1,113,2,1,Kind.DIVISION,"75 : 5","15,0","Chia từ trái sang phải; số dư nhỏ hơn số chia.","75 = 5 × 15; thương 15, dư 0.",new String[]{},75,5);
  add(44,1,113,2,2,Kind.DIVISION,"68 : 4","17,0","Chia từ trái sang phải; số dư nhỏ hơn số chia.","68 = 4 × 17; thương 17, dư 0.",new String[]{},68,4);
  add(44,1,113,2,3,Kind.DIVISION,"96 : 6","16,0","Chia từ trái sang phải; số dư nhỏ hơn số chia.","96 = 6 × 16; thương 16, dư 0.",new String[]{},96,6);
- add(44,1,113,3,1,Kind.MULTI,"Hình chữ nhật ABCD có hai đường chéo cắt tại O. Chọn đoạn có trung điểm O.","1,2","Hai đường chéo cắt nhau tại trung điểm.","Chọn: AC, BD",new String[]{"AB","AC","BD","CD"},0,0);
- add(44,1,113,3,2,Kind.PRACTICE,"Quan sát hình VBT tr.113, gọi tên các góc vuông và góc không vuông chung đỉnh O.","done","Thực hành với vở bài tập hoặc đồ dùng thật; nhờ người lớn kiểm tra.","Dùng ê ke kiểm tra và gọi tên góc theo đúng hình.",new String[]{},0,0);
+ add(44,1,113,3,1,Kind.MULTI,"Quan sát hình chữ nhật ABCD và hình tròn tâm O. Chọn đoạn có trung điểm O.","1,2","Hai đường chéo cắt nhau tại trung điểm.","AC và BD.",new String[]{"AB","AC","BD","CD"},0,0);
+ add(44,1,113,3,2,Kind.MULTI,"Quan sát hình. Chọn các góc vuông.","0,1,2,3","Bốn góc ở bốn đỉnh hình chữ nhật.","DAB, ABC, BCD, CDA.",new String[]{"DAB","ABC","BCD","CDA","AOB","BOC"},0,0);
+ add(44,1,113,3,3,Kind.MULTI,"Quan sát hình. Chọn các góc không vuông chung đỉnh O.","0,1,2,3","Hai đường chéo không vuông góc; xét bốn góc tạo thành quanh O.","AOB, BOC, COD, DOA.",new String[]{"AOB","BOC","COD","DOA","ABC","BCD"},0,0);
  add(44,1,114,4,1,Kind.NUMBER,"216 + 148 − 144 = ?","220","Tính theo đúng thứ tự các phép tính.","216 + 148 − 144 = 220",new String[]{},0,0);
  add(44,1,114,4,2,Kind.NUMBER,"216 × (148 − 144) = ?","864","Tính theo đúng thứ tự các phép tính.","216 × (148 − 144) = 864",new String[]{},0,0);
  add(44,1,114,5,1,Kind.NUMBER,"Thùng 120 l nước mắm, lấy 7 can, mỗi can 10 l. Còn bao nhiêu lít?","50","120 − 7 × 10","Đáp án: 50",new String[]{},0,0);

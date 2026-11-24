@@ -70,7 +70,7 @@ public final class MainActivity extends Activity {
   SharedPreferences.Editor e=prefs.edit().putBoolean("initialized",true).putInt("lesson",lesson).putBoolean("advanced",advanced).putBoolean("sound",sound).putString("screen",screen).putString("legacy",legacyArchive).putBoolean("reviewing",reviewing);
   try{for(int i=0;i<20;i++){e.putString("core"+(i+25),core[i].json().toString());e.putString("bonus"+(i+25),bonus[i].json().toString());}if(review!=null)e.putString("reviewState",review.json().toString());}
   catch(JSONException ex){throw new IllegalStateException(ex);}
-  if(sync)e.commit();else e.apply();
+  if(sync){if(!e.commit())Toast.makeText(this,"Chưa lưu được tiến độ. Hãy kiểm tra bộ nhớ máy.",Toast.LENGTH_LONG).show();}else e.apply();
  }
  private int countDone(){int n=0;for(JourneyState s:core)if(s.completed()==s.count())n++;return n;}
  private int stars(){int n=0;for(JourneyState s:core)n+=s.completed();for(JourneyState s:bonus)n+=s.completed();return n;}
@@ -93,7 +93,7 @@ public final class MainActivity extends Activity {
  private LinearLayout card(){LinearLayout l=column();l.setBackground(background(WHITE,CREAM,17,0xffefb95c));pad(l,10);return l;}
  private ScrollView scroll(LinearLayout child){ScrollView s=new ScrollView(this);s.setFillViewport(false);s.setClipToPadding(false);s.addView(child,new ScrollView.LayoutParams(-1,-2));return s;}
  private void bar(LinearLayout parent,int n,int total){ProgressBar p=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);p.setMax(Math.max(1,total));p.setProgress(n);p.setProgressTintList(ColorStateList.valueOf(PINK));p.setProgressBackgroundTintList(ColorStateList.valueOf(0xffead9df));add(parent,p,9,4);}
- private void nav(String to){reviewing=false;screen=to;save(false);render();}
+ private void nav(String to){reviewing=false;screen=to;save(true);render();}
  private void start(int n,boolean adv){lesson=n;advanced=adv;reviewing=false;screen="game";save(true);render();}
  private void startReview(int n,boolean adv,int index){lesson=n;advanced=adv;reviewing=true;review=new JourneyState(n,adv);review.cursor=index;screen="game";save(false);render();}
  private void render(){
@@ -175,7 +175,7 @@ public final class MainActivity extends Activity {
  private void settings(LinearLayout page){add(page,text("Cài đặt",25,PINK,true),-2,0);add(page,pale(sound?"🔊 Tắt âm thanh":"🔇 Bật âm thanh",20,()->{sound=!sound;save(false);render();}),48,7);
   add(page,pale("Sao lưu tiến độ",20,()->{Intent in=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json").putExtra(Intent.EXTRA_TITLE,"ToanLop3-tien-do.json");startActivityForResult(in,EXPORT);}),48,7);
   add(page,pale("Khôi phục tiến độ",20,()->{Intent in=new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json");startActivityForResult(in,IMPORT);}),48,7);
-  add(page,text("Toán lớp 3 · 0.6.0\nSGK Toán 3 tập một, tr.72–121; VBT tập một, tr.64–115. Ngân hàng chuyển thể có chỉ mục trang/tiết. 2 câu nâng cao tự soạn mỗi bài. Các nhiệm vụ thực hành thật do người học xác nhận; câu đo trên hình được chấm tự động. Android native, chạy offline.",16,MUTED,false),-2,9);
+  add(page,text("Toán lớp 3 · 0.6.1 · "+getString(R.string.build_commit).substring(0,Math.min(12,getString(R.string.build_commit).length()))+"\nSGK Toán 3 tập một, tr.72–121; VBT tập một, tr.64–115. Ngân hàng chuyển thể có chỉ mục trang/tiết. 2 câu nâng cao tự soạn mỗi bài. Các nhiệm vụ thực hành thật do người học xác nhận; câu đo trên hình được chấm tự động. Android native, chạy offline.",16,MUTED,false),-2,9);
   if(!legacyArchive.isEmpty())add(page,text("Tiến độ bản thử nghiệm cũ vẫn được lưu trong bản sao lưu; nội dung cơ bản đã thay sang ngân hàng theo sách nên không tự gán kết quả cũ cho câu mới.",14,MUTED,false),-2,8);
  }
  private JSONObject backup()throws JSONException{JSONObject j=new JSONObject(),a=new JSONObject(),b=new JSONObject();j.put("schema",3);j.put("app","vn.toanlop3");j.put("lesson",lesson);j.put("advanced",advanced);j.put("sound",sound);j.put("screen",screen);j.put("legacy",legacyArchive);for(int i=0;i<20;i++){a.put(""+(i+25),core[i].json());b.put(""+(i+25),bonus[i].json());}j.put("lessons",a);j.put("bonus",b);if(reviewing&&review!=null){j.put("reviewing",true);j.put("reviewState",review.json());}return j;}
@@ -185,7 +185,7 @@ public final class MainActivity extends Activity {
    JSONObject j=new JSONObject(new String(buf.toByteArray(),StandardCharsets.UTF_8));int schema=j.optInt("schema");if(schema<1||schema>3||!"vn.toanlop3".equals(j.optString("app")))throw new IOException("Invalid backup");
    JSONObject ca=j.getJSONObject("lessons"),ba=j.optJSONObject("bonus");JourneyState[] x=new JourneyState[20],y=new JourneyState[20];
    for(int i=0;i<20;i++){int n=i+25;JSONObject v=ca.getJSONObject(""+n),w=ba==null?null:ba.optJSONObject(""+n);x[i]=schema==3?JourneyState.read(n,false,v):new JourneyState(n,false);y[i]=schema==3?JourneyState.read(n,true,w):JourneyState.migrateAdvanced(n,w);}
-   new AlertDialog.Builder(this).setTitle("Khôi phục tiến độ?").setMessage(schema==3?"Thay tiến độ hiện tại bằng bản sao lưu.":"Bản cũ có ngân hàng câu hỏi khác. Lưu dữ liệu cũ và khôi phục phần nâng cao tương ứng.").setNegativeButton("Hủy",null).setPositiveButton("Khôi phục",(d,w)->{System.arraycopy(x,0,core,0,20);System.arraycopy(y,0,bonus,0,20);lesson=JourneyState.bound(j.optInt("lesson",25),25,44);advanced=j.optBoolean("advanced");sound=j.optBoolean("sound",true);legacyArchive=schema==3?j.optString("legacy",""):j.toString();screen="map";reviewing=false;save(true);render();Toast.makeText(this,"Đã khôi phục",Toast.LENGTH_SHORT).show();}).show();
+   new AlertDialog.Builder(this).setTitle("Khôi phục tiến độ?").setMessage(schema==3?"Thay tiến độ hiện tại bằng bản sao lưu.":"Bản cũ có ngân hàng câu hỏi khác. Lưu dữ liệu cũ và khôi phục phần nâng cao tương ứng.").setNegativeButton("Hủy",null).setPositiveButton("Khôi phục",(d,w)->{System.arraycopy(x,0,core,0,20);System.arraycopy(y,0,bonus,0,20);lesson=JourneyState.bound(j.optInt("lesson",25),25,44);advanced=j.optBoolean("advanced");sound=j.optBoolean("sound",true);legacyArchive=schema==3?j.optString("legacy",""):j.toString();screen=schema==3&&Arrays.asList("map","game","review","awards").contains(j.optString("screen"))?j.optString("screen"):"map";reviewing=schema==3&&screen.equals("game")&&j.optBoolean("reviewing")&&j.optJSONObject("reviewState")!=null;review=reviewing?JourneyState.read(lesson,advanced,j.optJSONObject("reviewState")):null;save(true);render();Toast.makeText(this,"Đã khôi phục",Toast.LENGTH_SHORT).show();}).show();
   }catch(Exception ex){new AlertDialog.Builder(this).setTitle("Không thể xử lý tệp").setMessage("Hãy chọn bản sao lưu hợp lệ. Tiến độ hiện tại chưa bị thay đổi.").setPositiveButton("Đóng",null).show();}
  }
  @Override public void onBackPressed(){if(!screen.equals("map"))nav(reviewing?"review":"map");else super.onBackPressed();}
