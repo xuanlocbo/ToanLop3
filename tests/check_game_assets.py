@@ -29,10 +29,23 @@ for n in expected:check(n,(root/("drawable-nodpi" if n.endswith(".webp") else "r
 if len(sys.argv)>1:
  with zipfile.ZipFile(sys.argv[1]) as z:
   names=z.namelist()
-  for n in expected:
-   matches=[k for k in names if k.rsplit("/",1)[-1]==n]
-   assert len(matches)==1,("Missing packaged resource",n,matches)
+  assert z.testzip() is None, "Corrupt APK entry"
+  # AAPT2 release optimization shortens physical ZIP resource paths.
+  # Identify assets by the original byte count and SHA-256 instead.
+  # This still rejects missing, changed or duplicate copies.
+  packaged={}
+  sizes={size for size,sha in expected.values()}
+  for entry in z.infolist():
+   if not entry.filename.startswith("res/") or entry.file_size not in sizes:
+    continue
+   data=z.read(entry)
+   key=(len(data),hashlib.sha256(data).hexdigest())
+   packaged.setdefault(key,[]).append(entry.filename)
+  for n,identity in expected.items():
+   matches=packaged.get(identity,[])
+   assert len(matches)==1,("Missing or duplicate packaged resource",n,matches)
    check(n,z.read(matches[0]))
+   print(n+" verified at "+matches[0])
   assert "AndroidManifest.xml" in names and any(n.endswith(".dex") for n in names)
   assert not any(n.endswith(".html") for n in names)
 print("PASS: exact 7 artwork files and 9 original audio clips"+(" in APK" if len(sys.argv)>1 else " in source"))
