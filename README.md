@@ -1,22 +1,14 @@
-# Toán lớp 3
+# Toán lớp 3 — Android native v0.3.0
 
-Ứng dụng Android native offline dành cho học sinh lớp 3, nhân vật Mộc Nhiên.
-Không HTML, WebView, quảng cáo, tài khoản hoặc quyền Internet.
+Ứng dụng offline Android native, không HTML/WebView. Nhân vật nữ bé heo hồng Mộc Nhiên, bản đồ ngang 20 bài, 4 mục Hành trình / Ôn tập / Thành tích / Cài đặt. Một màn phiêu lưu tích hợp học toán, không có chế độ game tách rời. Giao diện được dựng lại bằng native Views và Canvas vector theo bố cục đã duyệt; chưa phải ảnh thiết kế được chuyển nguyên pixel thành UI.
 
-## 0.2.0 — bản thử nghiệm
-- Mỗi bài có 2 câu nâng cao tùy chọn (40 câu tổng cộng), tiến độ riêng, không ảnh hưởng việc mở bài tiếp theo.
-- Giữ nguyên 160 câu cơ bản và mã định danh ứng dụng. Đọc được bản sao lưu v1 và v2.
-- 20 bài từ bài 25 đến 44, Toán 3 tập 1, Kết nối tri thức với cuộc sống.
-- Bài luyện tập tự soạn theo chủ đề. Chưa đọc được hai bản sách gốc được cung cấp, chưa xác nhận từng bài tập khớp vở bài tập. Cần hoàn thiện đối chiếu trước khi sử dụng làm bản học chính thức.
-- Học ngay trong hành trình: di chuyển, giải toán để mở đường, chia táo, đọc thước và nhiệt kế.
-- Tiến độ, vị trí, câu đang làm, đáp án dở, gợi ý và sao lưu trên thiết bị.
-- Sao lưu/khôi phục bằng tệp JSON. Không cần mạng.
+## Căn cứ nội dung
+- Hai PDF người dùng cung cấp: SGK Toán 3 tập một (tái bản lần thứ tư), trang 72–121; VBT Toán 3 tập một, trang 64–115.
+- 480 nhiệm vụ chuyển thể theo số bài/tiết/trang/câu VBT, gồm 9 nhiệm vụ thực hành xác nhận thủ công. 40 câu nâng cao tự soạn (2/bài).
+- Các dạng đặt tính (thương và dư), phép nhân, nhiều lựa chọn, chọn nhiều đáp án, đọc thước/cân/ca/nhiệt kế, sơ đồ trung điểm, toán có lời văn.
+- Những bài cần đo trực tiếp/vẽ theo hình gốc và một số hình khó đọc được hướng dẫn thực hành, không tự bịa đáp án; chưa tuyên bố chuyển thể 100% mọi thao tác hình học nguyên bản hay toàn bộ câu phụ.
+- Có hướng dẫn kiến thức ngắn theo SGK, chỉ mục nguồn cho câu cơ bản.
+- Tự động lưu theo ID bài tập, vị trí, câu trả lời dở, gợi ý và câu sai; sao lưu JSON. Tiến độ nâng cao cũ được di trú tương ứng; dữ liệu ngân hàng tự soạn cũ được lưu trữ riêng vì không tương đương câu VBT mới.
 
 ## Build
-Android Studio, JDK 17, Android SDK 35, Gradle 8.7.
-GitHub Actions: workflow Android APK, tải artifact APK sau khi build thành công.
-Bản debug là bản thử nghiệm, chưa xác nhận chạy trên thiết bị thật. Khi cập nhật phải giữ applicationId và khóa ký. Nếu khóa ký debug của CI mất, xuất bản sao lưu trước khi gỡ/cài mới.
-
-## Mục lục tham khảo
-https://ihoc.vn/sgk/lop-3/toan-hoc-lop-3/sach-giao-khoa-toan-lop-3-tap-1-ket-noi-tri-thuc.html
-https://www.thivien.org/vbt-toan-3-kn/index.jsp
+JDK 17, SDK 35, Gradle 8.7, Android Gradle Plugin 8.6.1. GitHub Actions tạo APK debug, kiểm tra nội dung và chữ ký. Duy trì applicationId vn.toanlop3. Khóa debug được cache; nếu khóa cũ mất, xuất backup trước khi cài mới. Chưa xác nhận chạy trên thiết bị thật chỉ từ kết quả build.
