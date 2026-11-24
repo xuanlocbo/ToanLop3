@@ -33,6 +33,7 @@ jobs:
           javac -encoding UTF-8 -d /tmp/math-check app/src/main/java/vn/toanlop3/Curriculum.java app/src/main/java/vn/toanlop3/BookBank.java tests/CurriculumCheck.java tests/BookBankCheck.java
           java -cp /tmp/math-check CurriculumCheck
           java -cp /tmp/math-check BookBankCheck
+          python3 tests/check_game_assets.py
       - name: Restore debug signing key
         uses: actions/cache@v4
         with:
@@ -45,7 +46,9 @@ jobs:
           APK=app/build/outputs/apk/debug/app-debug.apk
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
           mkdir -p dist
-          cp "$APK" dist/ToanLop3-0.4.0.apk
+          cp "$APK" dist/ToanLop3-0.5.0.apk
+          python3 tests/check_game_assets.py "$APK"
+          sha256sum dist/ToanLop3-0.5.0.apk
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -72,6 +75,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ToanLop3-APK
-          path: dist/ToanLop3-0.4.0.apk
+          path: dist/ToanLop3-0.5.0.apk
           if-no-files-found: error
           retention-days: 30

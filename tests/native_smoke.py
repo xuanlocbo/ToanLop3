@@ -77,6 +77,27 @@ def main():
     screenshot("05_small_screen")
     tap(desc="Về hành trình");tap(desc="Bài 25,",prefix=True);tap(desc="Học và chơi bài 25");expect("45 : 8")
     assert_draft(25,"1","0",1);screenshot("06_return_to_lesson")
+    # Continue through real UI, then test a manipulative and its saved state.
+    tap(desc="Ô thương");tap(desc="Xóa chữ số");tap(desc="Chữ số 5")
+    tap(desc="Ô số dư");tap(desc="Xóa chữ số");tap(desc="Chữ số 5")
+    tap(desc="Kiểm tra đáp án");expect("Chính xác!");tap(desc="Tiếp tục nhiệm vụ")
+    for problem,quot,rem in [("23 : 3","7","2"),("45 : 5","9","0")]:
+        expect(problem);tap(desc="Chữ số "+quot);tap(desc="Ô số dư");tap(desc="Chữ số "+rem)
+        tap(desc="Kiểm tra đáp án");expect("Chính xác!");tap(desc="Tiếp tục nhiệm vụ")
+    expect("Chọn các phép chia hết.")
+    for opt in ["30 : 6","42 : 7","27 : 9"]:tap(desc="Chọn "+opt)
+    tap(desc="Kiểm tra đáp án");expect("Chính xác!");tap(desc="Tiếp tục nhiệm vụ")
+    expect("Chia đều 20 quả táo.")
+    lab=next(n for n in nodes() if n.get("content-desc","").startswith("Chia 20 quả táo vào đĩa:"))
+    b=list(map(int,re.findall(r"-?\d+",lab.get("bounds",""))))
+    l,t,r,bot=b;sc=min((r-l)/850,(bot-t)/390);ox=l+((r-l)-850*sc)/2;oy=t+((bot-t)-390*sc)/2
+    adb("shell","input","swipe",str(round(ox+89*sc)),str(round(oy+82*sc)),str(round(ox+244.5*sc)),str(round(oy+270*sc)),"850")
+    pause();st=checkpoint(25);assert st["appleLayout"].startswith("1"),st
+    adb("shell","am","force-stop",PKG);launch();expect("Chia đều 20 quả táo.")
+    assert checkpoint(25)["appleLayout"]==st["appleLayout"]
+    screenshot("07_apple_restored")
+    for opt in ["2 đĩa","4 đĩa"]:tap(desc="Chọn "+opt)
+    tap(desc="Kiểm tra đáp án");expect("Chính xác!");screenshot("08_apple_correct")
     crashes=adb("logcat","-d","-s","AndroidRuntime:E")
     assert "FATAL EXCEPTION" not in crashes,crashes
     print("NATIVE SMOKE PASS: map, real install/start, answer, wrong answer, autosave/relaunch, lesson resume, small-screen resize")
