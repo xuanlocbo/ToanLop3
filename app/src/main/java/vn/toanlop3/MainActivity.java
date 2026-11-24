@@ -22,7 +22,8 @@ public final class MainActivity extends Activity {
     private static final int PINK=0xffd94c91,BG=0xfffff0f6,INK=0xff4d354b,MUTED=0xff835f75,PALE=0xfffbe1ed,WHITE=0xfffffdfd,GREEN=0xff23794f;
     private static final int EXPORT=81,IMPORT=82;
     private SharedPreferences prefs;
-    private SaveState[] data=new SaveState[20];
+    private SaveState[] data=new SaveState[20], bonus=new SaveState[20];
+    private boolean advanced=false;
     private int lesson=25;
     private String screen="home";
     private LinearLayout root;
@@ -30,23 +31,27 @@ public final class MainActivity extends Activity {
     private boolean sound=true;
     private int dp(float x){return Math.round(x*getResources().getDisplayMetrics().density);}
     private boolean landscape(){return getResources().getConfiguration().orientation==Configuration.ORIENTATION_LANDSCAPE;}
-    private SaveState state(){return data[lesson-25];}
+    private SaveState state(){return (advanced?bonus:data)[lesson-25];}
     @Override public void onCreate(Bundle b){
         super.onCreate(b);prefs=getSharedPreferences("toanlop3.progress.v1",MODE_PRIVATE);
         lesson=SaveState.bound(prefs.getInt("lesson",25),25,44);screen=prefs.getString("screen","home");sound=prefs.getBoolean("sound",true);
+        advanced=prefs.getBoolean("advanced",false);
         if(!screen.equals("game")&&!screen.equals("map"))screen="home";
-        for(int n=25;n<=44;n++){try{data[n-25]=SaveState.read(new JSONObject(prefs.getString("lesson"+n,"{}")),n);}catch(Exception e){data[n-25]=new SaveState();}}
+        for(int n=25;n<=44;n++){
+            try{data[n-25]=SaveState.read(new JSONObject(prefs.getString("lesson"+n,"{}")),n);}catch(Exception e){data[n-25]=new SaveState();}
+            try{bonus[n-25]=SaveState.read(new JSONObject(prefs.getString("bonus"+n,"{}")),n,true);}catch(Exception e){bonus[n-25]=new SaveState(true);}
+        }
         render();
     }
     @Override public void onConfigurationChanged(Configuration c){super.onConfigurationChanged(c);persist();render();}
     @Override protected void onPause(){persist();super.onPause();}
     private void persist(){
-        SharedPreferences.Editor e=prefs.edit().putInt("lesson",lesson).putString("screen",screen).putBoolean("sound",sound);
-        try{for(int n=25;n<=44;n++)e.putString("lesson"+n,data[n-25].json().toString());e.commit();}
+        SharedPreferences.Editor e=prefs.edit().putInt("lesson",lesson).putString("screen",screen).putBoolean("sound",sound).putBoolean("advanced",advanced);
+        try{for(int n=25;n<=44;n++){e.putString("lesson"+n,data[n-25].json().toString());e.putString("bonus"+n,bonus[n-25].json().toString());}e.commit();}
         catch(JSONException ex){throw new IllegalStateException(ex);}
     }
     private int stars(){int t=0;for(SaveState s:data)t+=s.stars();return t;}
-    private int completed(){int t=0;for(SaveState s:data)if(s.earned==255)t++;return t;}
+    private int completed(){int t=0;for(SaveState s:data)if(s.complete())t++;return t;}
     private GradientDrawable shape(int col,int rad){GradientDrawable g=new GradientDrawable();g.setColor(col);g.setCornerRadius(dp(rad));return g;}
     private LinearLayout column(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.VERTICAL);return l;}
     private LinearLayout row(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.HORIZONTAL);l.setGravity(Gravity.CENTER_VERTICAL);return l;}
@@ -75,7 +80,8 @@ public final class MainActivity extends Activity {
         p.setProgressTintList(ColorStateList.valueOf(PINK));p.setProgressBackgroundTintList(ColorStateList.valueOf(PALE));add(l,p,10,7);
     }
     private void navigate(String s){screen=s;persist();render();}
-    private void start(int n){lesson=n;screen="game";persist();render();}
+    private void start(int n){start(n,false);}
+    private void start(int n,boolean enrichment){lesson=n;advanced=enrichment;screen="game";persist();render();}
     private void render(){
         root=column();root.setBackgroundColor(BG);padding(root,12);
         setContentView(root);
@@ -103,10 +109,10 @@ public final class MainActivity extends Activity {
         add(l,center("Mộc Nhiên",28,INK,true),-2,8);
         add(l,center("⭐ "+stars()+"     •     "+completed()+"/20 bài",20,MUTED,true),-2,2);
         LinearLayout box=card();
-        add(box,text("Bài "+lesson+" · "+Curriculum.title(lesson),22,INK,true),-2,0);
-        add(box,text(state().stage>=8?"Đã hoàn thành!":"Thử thách "+(state().stage+1)+"/8",17,MUTED,false),-2,5);
-        progress(box,state().stars(),8);add(l,box,-2,12);
-        add(l,btn("▶  Học tiếp",PINK,WHITE,25,()->start(lesson)),66,13);
+        add(box,text((advanced?"Nâng cao · ":"")+"Bài "+lesson+" · "+Curriculum.title(lesson),22,INK,true),-2,0);
+        add(box,text(state().stage>=state().count?"Đã hoàn thành!":"Thử thách "+(state().stage+1)+"/"+state().count,17,MUTED,false),-2,5);
+        progress(box,state().stars(),state().count);add(l,box,-2,12);
+        add(l,btn(advanced?"▶  Tiếp tục nâng cao":"▶  Học tiếp",PINK,WHITE,25,()->start(lesson,advanced)),66,13);
         add(l,btn("Bản đồ bài học",PALE,INK,22,()->navigate("map")),58,10);
     }
     private void map(){
@@ -121,10 +127,11 @@ public final class MainActivity extends Activity {
             LinearLayout group=row();group.setGravity(Gravity.TOP);
             int count=0;
             for(int n=start[w];n<=end[w];n++){
-                final int num=n;SaveState s=data[n-25];String mark=s.earned==255?"✓":"⭐ "+s.stars()+"/8";
+                final int num=n;SaveState s=data[n-25];String mark=s.complete()?"✓":"⭐ "+s.stars()+"/"+s.count;
                 LinearLayout cell=card();add(cell,text("Bài "+n,22,PINK,true),-2,0);
                 add(cell,text(Curriculum.title(n),17,INK,true),-2,3);add(cell,text(mark,16,MUTED,true),-2,5);
-                add(cell,btn("Vào bài",n==lesson?PINK:PALE,n==lesson?WHITE:INK,17,()->start(num)),54,6);
+                add(cell,btn("Vào bài",n==lesson&&!advanced?PINK:PALE,n==lesson&&!advanced?WHITE:INK,17,()->start(num)),54,6);
+                add(cell,btn("Nâng cao "+bonus[n-25].stars()+"/2",0xffffefd3,INK,16,()->start(num,true)),54,6);
                 weight(group,cell,-2,3);count++;
                 if(count==cols||n==end[w]){
                     for(int k=count;k<cols;k++)weight(group,new View(this),1,3);
@@ -134,7 +141,7 @@ public final class MainActivity extends Activity {
         }
     }
     private void move(int direction,boolean jump){
-        SaveState s=state();if(s.solved||s.stage>=8)return;
+        SaveState s=state();if(s.solved||s.stage>=s.count)return;
         int old=s.position;
         if(direction<0){if(s.position>0)s.position--;}
         else if(jump){if(s.position==2)s.position=3;}
@@ -145,10 +152,10 @@ public final class MainActivity extends Activity {
         SaveState s=state();
         LinearLayout header=row();
         header.addView(btn("‹",PALE,INK,28,()->navigate("home")),new LinearLayout.LayoutParams(dp(54),dp(54)));
-        LinearLayout label=column();add(label,text("Bài "+lesson+"   ·   ⭐ "+s.stars()+"/8",21,PINK,true),-2,0);
+        LinearLayout label=column();add(label,text((advanced?"Nâng cao · ":"")+"Bài "+lesson+"   ·   ⭐ "+s.stars()+"/"+s.count,21,PINK,true),-2,0);
         add(label,text(Curriculum.title(lesson),16,INK,true),-2,0);
-        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);lp.leftMargin=dp(10);header.addView(label,lp);add(root,header,-2,0);progress(root,s.stars(),8);
-        if(s.stage>=8){finishLesson();return;}
+        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);lp.leftMargin=dp(10);header.addView(label,lp);add(root,header,-2,0);progress(root,s.stars(),s.count);
+        if(s.stage>=s.count){finishLesson();return;}
         LinearLayout sceneBox=column(),taskBox=card();
         if(landscape()){
             LinearLayout two=row();two.setGravity(Gravity.TOP);
@@ -159,7 +166,7 @@ public final class MainActivity extends Activity {
         }else{
             LinearLayout all=scroller(root);add(all,sceneBox,-2,9);add(all,taskBox,-2,10);
         }
-        scene=new AdventureView(this,Curriculum.world(lesson),s.stage,s.position,s.solved,false);
+        scene=new AdventureView(this,Curriculum.world(lesson),s.stage,s.position,s.solved,false,s.count);
         int sceneH=landscape()?Math.max(110,Math.min(190,(int)(getResources().getDisplayMetrics().heightPixels/getResources().getDisplayMetrics().density)-210)):180;
         add(sceneBox,scene,sceneH,0);if(old>=0)scene.animateFrom(old,jump);
         if(s.position<4&&!s.solved){
@@ -170,18 +177,18 @@ public final class MainActivity extends Activity {
             back.setContentDescription("Đi sang trái");forward.setContentDescription("Đi sang phải");
             weight(controls,back,55,3);weight(controls,forward,55,3);weight(controls,hop,55,3);add(sceneBox,controls,-2,7);
             add(taskBox,center(s.position==2?"Nhảy qua chướng ngại vật!":"Đi tới cổng phép thuật!",25,INK,true),-2,4);
-            add(taskBox,center("Thử thách "+(s.stage+1)+"/8",19,MUTED,false),-2,8);
+            add(taskBox,center("Thử thách "+(s.stage+1)+"/"+s.count,19,MUTED,false),-2,8);
             if(s.stage==0){add(taskBox,text("Bí kíp",20,PINK,true),-2,14);add(taskBox,text(Curriculum.tip(lesson),20,INK,false),-2,6);}
             return;
         }
-        Curriculum.Q q=Curriculum.question(lesson,s.stage);
+        Curriculum.Q q=advanced?Curriculum.advanced(lesson,s.stage):Curriculum.question(lesson,s.stage);
         if(s.solved){
             add(taskBox,center("⭐ Chính xác!",30,GREEN,true),-2,8);
             add(taskBox,center(q.explain,24,INK,true),-2,12);
             add(taskBox,center("Cầu đã mở!",19,MUTED,false),-2,7);
             add(taskBox,btn("Qua cầu  ▶",PINK,WHITE,23,()->{s.next();persist();render();}),62,13);return;
         }
-        add(taskBox,text("Mở đường bằng toán",18,PINK,true),-2,0);
+        add(taskBox,text(advanced?"Thử thách nâng cao":"Mở đường bằng toán",18,PINK,true),-2,0);
         add(taskBox,center(q.text,q.text.length()>65?23:29,INK,true),-2,9);
         if(q.kind==Curriculum.RULER||q.kind==Curriculum.THERMO)add(taskBox,new MeasureView(this,q),q.kind==Curriculum.RULER?105:172,8);
         if(q.kind==Curriculum.CHOICE){
@@ -193,7 +200,7 @@ public final class MainActivity extends Activity {
         if(!s.hint)add(taskBox,btn("Gợi ý  💡",PALE,INK,19,()->{s.hint=true;persist();render();}),54,10);
     }
     private void submit(boolean ok){
-        SaveState s=state();if(s.solved||s.stage>=8||s.position!=4)return;
+        SaveState s=state();if(s.solved||s.stage>=s.count||s.position!=4)return;
         if(ok)s.correct();
         else{s.wrong++;s.hint=true;}
         persist();render();
@@ -232,12 +239,18 @@ public final class MainActivity extends Activity {
         refresh.run();add(l,btn("Kiểm tra",PINK,WHITE,22,()->submit(q.shareOK(Arrays.copyOf(s.groups,q.b)))),56,9);
     }
     private void finishLesson(){
-        LinearLayout l=scroller(root);LinearLayout box=card();add(box,center("Hoàn thành! 🎉",32,PINK,true),-2,0);
-        add(box,new AdventureView(this,Curriculum.world(lesson),7,4,true,true),landscape()?145:190,10);
-        add(box,center("⭐ "+state().stars()+"/8",27,INK,true),-2,8);
+        LinearLayout l=scroller(root);LinearLayout box=card();
+        add(box,center(advanced?"Hoàn thành nâng cao! 🎉":"Hoàn thành! 🎉",32,PINK,true),-2,0);
+        add(box,new AdventureView(this,Curriculum.world(lesson),state().count-1,4,true,true),landscape()?145:190,10);
+        add(box,center("⭐ "+state().stars()+"/"+state().count,27,INK,true),-2,8);
+        if(!advanced){
+            add(box,btn("Thử thách nâng cao "+bonus[lesson-25].stars()+"/2",0xffffefd3,INK,21,()->start(lesson,true)),64,10);
+            add(box,text("2 câu tùy chọn",17,MUTED,false),-2,4);
+        }
         if(lesson<44)add(box,btn("Bài tiếp theo  ▶",PINK,WHITE,23,()->start(lesson+1)),62,10);
         else add(box,btn("Về bản đồ",PINK,WHITE,23,()->navigate("map")),62,10);
-        add(box,btn("Chơi lại bài "+lesson,PALE,INK,20,()->{state().replay();persist();render();}),54,8);add(l,box,-2,12);
+        if(advanced)add(box,btn("Về bài cơ bản",PALE,INK,20,()->start(lesson)),54,8);
+        add(box,btn(advanced?"Chơi lại nâng cao":"Chơi lại bài "+lesson,PALE,INK,20,()->{state().replay();persist();render();}),54,8);add(l,box,-2,12);
     }
     private void settings(){
         String[] items={sound?"Tắt âm thanh nút":"Bật âm thanh nút","Sao lưu tiến độ","Khôi phục tiến độ","Thông tin phiên bản"};
@@ -245,12 +258,12 @@ public final class MainActivity extends Activity {
             if(i==0){sound=!sound;persist();render();}
             else if(i==1){Intent in=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json").putExtra(Intent.EXTRA_TITLE,"ToanLop3-tien-do.json");startActivityForResult(in,EXPORT);}
             else if(i==2){Intent in=new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json");startActivityForResult(in,IMPORT);}
-            else new AlertDialog.Builder(this).setTitle("Toán lớp 3 · 0.1.0").setMessage("Bản thử nghiệm Android native. Bài 25–44, Kết nối tri thức với cuộc sống. Câu hỏi tự soạn theo chủ đề, chưa xác minh từng câu với vở bài tập gốc. Không cần Internet.").setPositiveButton("Đóng",null).show();
+            else new AlertDialog.Builder(this).setTitle("Toán lớp 3 · 0.2.0").setMessage("Bản thử nghiệm Android native. Bài 25–44, Kết nối tri thức với cuộc sống. 40 câu nâng cao tùy chọn. Câu hỏi tự soạn theo chủ đề, chưa xác minh từng câu với vở bài tập gốc. Không cần Internet.").setPositiveButton("Đóng",null).show();
         }).setNegativeButton("Đóng",null).show();
     }
     private JSONObject backup() throws JSONException{
-        JSONObject j=new JSONObject();j.put("schema",1);j.put("app","vn.toanlop3");j.put("lesson",lesson);j.put("screen",screen);j.put("sound",sound);
-        JSONObject all=new JSONObject();for(int n=25;n<=44;n++)all.put(""+n,data[n-25].json());j.put("lessons",all);return j;
+        JSONObject j=new JSONObject();j.put("schema",2);j.put("app","vn.toanlop3");j.put("lesson",lesson);j.put("screen",screen);j.put("sound",sound);j.put("advanced",advanced);
+        JSONObject all=new JSONObject(),extra=new JSONObject();for(int n=25;n<=44;n++){all.put(""+n,data[n-25].json());extra.put(""+n,bonus[n-25].json());}j.put("lessons",all);j.put("bonus",extra);return j;
     }
     @Override protected void onActivityResult(int req,int result,Intent intent){
         super.onActivityResult(req,result,intent);if(result!=RESULT_OK||intent==null||intent.getData()==null)return;
@@ -262,10 +275,10 @@ public final class MainActivity extends Activity {
                 ByteArrayOutputStream bytes=new ByteArrayOutputStream();
                 try(InputStream in=getContentResolver().openInputStream(intent.getData())){if(in==null)throw new IOException();byte[] buf=new byte[4096];int len;while((len=in.read(buf))!=-1){if(bytes.size()+len>131072)throw new IOException("Too large");bytes.write(buf,0,len);}}
                 JSONObject j=new JSONObject(new String(bytes.toByteArray(),StandardCharsets.UTF_8));
-                if(j.optInt("schema")!=1||!"vn.toanlop3".equals(j.optString("app")))throw new IOException("Wrong format");
-                JSONObject all=j.getJSONObject("lessons");SaveState[] imported=new SaveState[20];
-                for(int n=25;n<=44;n++)imported[n-25]=SaveState.read(all.getJSONObject(""+n),n);
-                new AlertDialog.Builder(this).setTitle("Khôi phục tiến độ?").setMessage("Tiến độ hiện tại sẽ được thay bằng bản sao lưu.").setNegativeButton("Hủy",null).setPositiveButton("Khôi phục",(d,w)->{data=imported;lesson=SaveState.bound(j.optInt("lesson",25),25,44);sound=j.optBoolean("sound",true);screen="home";persist();render();Toast.makeText(this,"Đã khôi phục",Toast.LENGTH_SHORT).show();}).show();
+                if((j.optInt("schema")!=1&&j.optInt("schema")!=2)||!"vn.toanlop3".equals(j.optString("app")))throw new IOException("Wrong format");
+                JSONObject all=j.getJSONObject("lessons"),extra=j.optJSONObject("bonus");SaveState[] imported=new SaveState[20],importedBonus=new SaveState[20];
+                for(int n=25;n<=44;n++){imported[n-25]=SaveState.read(all.getJSONObject(""+n),n);importedBonus[n-25]=SaveState.read(extra==null?null:extra.optJSONObject(""+n),n,true);}
+                new AlertDialog.Builder(this).setTitle("Khôi phục tiến độ?").setMessage("Tiến độ hiện tại sẽ được thay bằng bản sao lưu.").setNegativeButton("Hủy",null).setPositiveButton("Khôi phục",(d,w)->{data=imported;bonus=importedBonus;advanced=j.optBoolean("advanced",false);lesson=SaveState.bound(j.optInt("lesson",25),25,44);sound=j.optBoolean("sound",true);screen="home";persist();render();Toast.makeText(this,"Đã khôi phục",Toast.LENGTH_SHORT).show();}).show();
             }
         }catch(Exception e){new AlertDialog.Builder(this).setTitle("Không thể xử lý tệp").setMessage("Hãy chọn bản sao lưu hợp lệ của Toán lớp 3. Tiến độ hiện tại không thay đổi.").setPositiveButton("Đóng",null).show();}
     }

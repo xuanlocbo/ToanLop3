@@ -9,13 +9,14 @@ import android.view.animation.DecelerateInterpolator;
 /** Lightweight native vector-art platform scene. No WebView or external assets. */
 final class AdventureView extends View {
     private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
-    private int world,stage,position;
+    private int world,stage,position,count;
     private boolean opened,home;
     private float playerX,hop;
     private ValueAnimator animation;
     private static final float[] STEPS={65,145,230,365,485};
-    AdventureView(Context c,int w,int stage,int position,boolean opened,boolean home){
-        super(c);world=w;this.stage=stage;this.position=position;this.opened=opened;this.home=home;
+    AdventureView(Context c,int w,int stage,int position,boolean opened,boolean home){this(c,w,stage,position,opened,home,Curriculum.COUNT);}
+    AdventureView(Context c,int w,int stage,int position,boolean opened,boolean home,int count){
+        super(c);this.count=count;world=w;this.stage=stage;this.position=position;this.opened=opened;this.home=home;
         playerX=STEPS[Math.max(0,Math.min(4,position))];
         setContentDescription(home?"Mộc Nhiên và thỏ nhỏ trên đường tới lâu đài":"Mộc Nhiên đang phiêu lưu");
         setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
@@ -124,7 +125,7 @@ final class AdventureView extends View {
             else{rect(c,502,115,548,193,7,"#BA8F6B");rect(c,495,108,555,129,7,"#DAB28B");circle(c,525,155,19,"#FFF4D9");text(c,"?",525,164,28,"#965B7A");}
             for(int i=0;i<3;i++)if(position<=i){circle(c,145+i*91,149,12,"#FFF2B8");star(c,145+i*91,149,8,"#E9AC43");}
             girl(c,playerX,193-hop,.84f);bunny(c,playerX-36,192-hop*.6f);
-            if(stage<Curriculum.COUNT){rect(c,14,12,122,41,14,"#FFF9F2");text(c,(stage+1)+"/"+Curriculum.COUNT,68,33,17,"#79465D");}
+            if(stage<count){rect(c,14,12,122,41,14,"#FFF9F2");text(c,(stage+1)+"/"+count,68,33,17,"#79465D");}
         }
         c.restore();
     }

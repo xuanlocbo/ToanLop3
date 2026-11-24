@@ -1,7 +1,7 @@
 package vn.toanlop3;
 import java.util.*;
 public final class Curriculum {
-    public static final int FIRST=25,LAST=44,COUNT=8;
+    public static final int FIRST=25,LAST=44,COUNT=8,ADVANCED_COUNT=2;
     public static final String[] TITLES={
         "Phép chia hết, phép chia có dư",
         "Chia số có hai chữ số cho số có một chữ số",
@@ -66,6 +66,74 @@ public final class Curriculum {
         if(m==0)return ar(n+" : "+d+" = ?",q,"Tìm số nhân với "+d+" được "+n+".",e,i,r);
         if(i%3==1)return num(n+" : "+d+". Số dư là bao nhiêu?",m,"Tìm thương rồi lấy số bị chia trừ tích.",e);
         return choose(n+" : "+d+" = ?",q+" dư "+m,(q+1)+" dư "+m,q+" dư "+((m+1)%d),"Số dư nhỏ hơn số chia.",e,r);
+    }
+    /** Original enrichment questions. Two optional checkpoints per textbook topic. */
+    public static Q advanced(int n,int i){
+        if(n<FIRST||n>LAST||i<0||i>=ADVANCED_COUNT)throw new IllegalArgumentException();
+        Random r=new Random(8000L+n*31L+i);
+        switch(n){
+            case 25:
+                return i==0?num("Chia một số cho 5 được thương 7 và số dư 3. Số đó là bao nhiêu?",38,"Lấy thương nhân với số chia rồi cộng số dư.","7 × 5 + 3 = 38"):
+                    num("Có 29 bạn, mỗi thuyền chở nhiều nhất 4 bạn. Cần ít nhất bao nhiêu thuyền?",8,"Sau khi chia, nếu còn bạn chưa lên thuyền thì cần thêm một thuyền.","29 : 4 = 7 (dư 1); cần 7 + 1 = 8 thuyền.");
+            case 26:
+                return i==0?num("Tìm số lớn nhất có hai chữ số chia hết cho 6.",96,"Bắt đầu từ 99, tìm số gần nhất chia hết cho 6.","6 × 16 = 96; số tiếp theo là 102, có ba chữ số."):
+                    num("Chia một số có hai chữ số cho 7 được thương 12, dư 5. Tìm số đó.",89,"Nhân thương với 7 rồi cộng 5.","12 × 7 + 5 = 89");
+            case 27:
+                return i==0?num("Một sợi dây sau khi giảm đi 4 lần còn 9 cm. Lúc đầu dây dài bao nhiêu cm?",36,"Muốn tìm số ban đầu, làm ngược phép chia.","9 × 4 = 36 cm"):
+                    num("Có 72 bông hoa. Giảm số hoa đi 3 lần, rồi giảm tiếp đi 2 lần. Còn bao nhiêu bông?",12,"Chia cho 3, rồi chia cho 2.","72 : 3 = 24; 24 : 2 = 12");
+            case 28:
+                return i==0?num("Có 24 quả táo, số lê ít hơn số táo 6 quả. Chia đều tất cả vào 6 giỏ. Mỗi giỏ có bao nhiêu quả?",7,"Tìm số lê, rồi tổng số quả; cuối cùng chia đều.","24 − 6 = 18; 24 + 18 = 42; 42 : 6 = 7"):
+                    num("Có 8 hộp bánh, mỗi hộp 7 chiếc. Tặng 14 chiếc rồi chia đều phần còn lại cho 6 bạn. Mỗi bạn được bao nhiêu chiếc?",7,"Tính tổng bánh, trừ phần đã tặng rồi chia.","8 × 7 = 56; 56 − 14 = 42; 42 : 6 = 7");
+            case 29:
+                return i==0?num("Tìm số có hai chữ số nhỏ nhất mà chia cho 8 dư 5.",13,"Số cần tìm bằng 8 nhân với một số rồi cộng 5.","8 × 1 + 5 = 13; số nhỏ hơn cùng dạng là 5."):
+                    num("Có 7 túi bi, mỗi túi 9 viên. Sau khi cho đi 7 viên, chia đều số còn lại vào 8 hộp. Mỗi hộp có bao nhiêu viên?",7,"Tính số bi còn lại trước khi chia.","7 × 9 = 63; 63 − 7 = 56; 56 : 8 = 7");
+            case 30:
+                return i==0?num("Một dải ruy băng dài 9 cm, cắt đi 37 mm. Dải còn lại dài bao nhiêu mm?",53,"Đổi 9 cm sang mm rồi trừ.","9 cm = 90 mm; 90 − 37 = 53 mm"):
+                    num("Ba đoạn dây dài bằng nhau, mỗi đoạn 28 mm. Nối sát các đoạn, không chồng lên nhau. Tổng chiều dài bao nhiêu mm?",84,"Cộng ba đoạn bằng nhau hoặc nhân 3.","28 × 3 = 84 mm");
+            case 31:
+                return i==0?num("Một túi gạo nặng 1 kg. Lấy ra 3 phần, mỗi phần 125 g. Còn bao nhiêu gam gạo?",625,"Đổi kg sang g, tính khối lượng đã lấy rồi trừ.","1 000 − 125 × 3 = 625 g"):
+                    num("Hai quả táo giống nhau nặng 180 g. Một quả lê nặng hơn một quả táo 35 g. Quả lê nặng bao nhiêu gam?",125,"Tính khối lượng một quả táo trước.","180 : 2 = 90; 90 + 35 = 125 g");
+            case 32:
+                return i==0?num("Bình có 1 l nước. Rót đầy 3 cốc, mỗi cốc 180 ml. Bình còn bao nhiêu ml?",460,"Đổi lít sang ml rồi trừ lượng nước đã rót.","1 000 − 180 × 3 = 460 ml"):
+                    num("Có 950 ml nước. Rót đầy 4 chai, mỗi chai 200 ml. Còn bao nhiêu ml?",150,"Tính số nước đã rót vào 4 chai rồi trừ.","950 − 200 × 4 = 150 ml");
+            case 33:
+                return i==0?num("Lúc sáng nhiệt độ là 19 °C. Trưa tăng 9 °C, tối giảm 6 °C so với trưa. Tối bao nhiêu độ C?",22,"Tính nhiệt độ trưa, rồi trừ 6.","19 + 9 − 6 = 22 °C"):
+                    num("Nhiệt độ trong phòng sau khi tăng 7 °C rồi giảm 3 °C là 26 °C. Ban đầu bao nhiêu độ C?",22,"Làm ngược các thay đổi: cộng 3 rồi trừ 7.","26 + 3 − 7 = 22 °C");
+            case 34:
+                return i==0?num("Một cốc rỗng nặng 125 g. Khi đựng nước, cả cốc nặng 345 g. Riêng nước nặng bao nhiêu gam?",220,"Trừ khối lượng cốc rỗng khỏi khối lượng cả cốc.","345 − 125 = 220 g"):
+                    num("Đầu dây nằm ở vạch 12 mm, cuối dây ở vạch 57 mm. Dây dài bao nhiêu mm?",45,"Không đo từ vạch 0 thì lấy vạch cuối trừ vạch đầu.","57 − 12 = 45 mm");
+            case 35:
+                return i==0?num("Mỗi chai nước có 250 ml. Rót hết 3 chai vào bình đang có 100 ml. Trong bình có bao nhiêu ml?",850,"Nhân lượng nước một chai với 3 rồi cộng 100.","250 × 3 + 100 = 850 ml"):
+                    num("Một hộp đựng 4 viên đất nặn, mỗi viên 75 g. Hộp rỗng nặng 120 g. Cả hộp nặng bao nhiêu gam?",420,"Tính khối lượng đất nặn rồi cộng khối lượng hộp.","75 × 4 + 120 = 420 g");
+            case 36:
+                return i==0?num("Tìm số còn thiếu: ? × 4 = 828.",207,"Lấy tích chia cho thừa số đã biết.","828 : 4 = 207; 207 × 4 = 828"):
+                    num("Có 4 khay, mỗi khay 203 hạt. Nếu bỏ đi 28 hạt, còn bao nhiêu hạt?",784,"Tính tích trước, rồi trừ số hạt bỏ đi.","203 × 4 − 28 = 784");
+            case 37:
+                return i==0?num("Một phép chia cho 6 có thương 135, số dư lớn nhất có thể. Số bị chia là bao nhiêu?",815,"Số dư lớn nhất là 5. Nhân thương với 6 rồi cộng số dư.","135 × 6 + 5 = 815"):
+                    num("Có 653 viên bi. Chia đều vào 5 hộp, nhiều nhất có thể. Cần thêm ít nhất bao nhiêu viên để chia hết?",2,"Tìm số dư, rồi xem còn thiếu bao nhiêu để đủ 5 viên.","653 : 5 = 130 (dư 3); 5 − 3 = 2");
+            case 38:
+                return i==0?choose("Đặt ngoặc để 8 + 4 × 5 có giá trị bằng 60.","(8 + 4) × 5","8 + (4 × 5)","(8 × 4) + 5","Thử tính tổng 8 + 4 trước.","(8 + 4) × 5 = 12 × 5 = 60",r):
+                    num("Tìm số còn thiếu: 72 : (3 + ?) = 12.",3,"Tìm số chia bằng 72 chia 12, rồi tìm số còn thiếu.","72 : 12 = 6; 6 − 3 = 3");
+            case 39:
+                return i==0?num("Lan có 6 nhãn vở. Mai có 24 nhãn. Mai tặng Lan 4 nhãn. Sau đó số nhãn của Mai gấp mấy lần Lan?",2,"Tính lại số nhãn của từng bạn rồi lấy số lớn chia số bé.","Mai: 24 − 4 = 20; Lan: 6 + 4 = 10; 20 : 10 = 2"):
+                    num("Vườn A có 12 cây. Vườn B gấp 4 lần vườn A. Vườn B trồng thêm 12 cây. Lúc này B gấp mấy lần A?",5,"Tính số cây mới của B rồi chia cho số cây A.","12 × 4 + 12 = 60; 60 : 12 = 5");
+            case 40:
+                return i==0?num("Một kho có 4 thùng, mỗi thùng 126 quyển vở. Chia đều tất cả cho 7 lớp. Mỗi lớp nhận bao nhiêu quyển?",72,"Tính tổng số vở rồi chia 7.","126 × 4 = 504; 504 : 7 = 72"):
+                    num("Tìm số còn thiếu: (240 + ?) : 6 = 50.",60,"Số trong ngoặc bằng 50 nhân 6.","50 × 6 = 300; 300 − 240 = 60");
+            case 41:
+                return i==0?num("Tìm số có ba chữ số nhỏ nhất chia hết cho 9.",108,"Tìm bội của 9 đầu tiên không nhỏ hơn 100.","9 × 11 = 99; 9 × 12 = 108"):
+                    num("Một số nhân với 8 được 816. Nếu lấy số đó chia cho 3 thì được bao nhiêu?",34,"Tìm số ban đầu bằng phép chia rồi chia tiếp cho 3.","816 : 8 = 102; 102 : 3 = 34");
+            case 42:
+                return i==0?num("Tính: 96 : (4 + 4) × 5 − 17.",43,"Tính trong ngoặc trước, rồi chia và nhân từ trái sang phải.","96 : 8 = 12; 12 × 5 = 60; 60 − 17 = 43"):
+                    num("Tìm số còn thiếu: 5 × (? − 7) = 45.",16,"Tìm giá trị trong ngoặc bằng 45 chia 5.","45 : 5 = 9; 9 + 7 = 16");
+            case 43:
+                return i==0?num("Đoạn AB dài 8 cm. M là trung điểm AB; N là trung điểm AM. AN dài bao nhiêu mm?",20,"Chia đôi AB, rồi chia đôi AM và đổi sang mm.","8 : 2 : 2 = 2 cm = 20 mm"):
+                    num("Hai hình tròn có bán kính 3 cm và 5 cm. Tổng độ dài hai đường kính là bao nhiêu cm?",16,"Đường kính của mỗi hình tròn gấp đôi bán kính.","3 × 2 + 5 × 2 = 16 cm");
+            case 44:
+                return i==0?num("Có 4 bình nước, mỗi bình 225 ml. Rót đều hết vào 6 cốc. Mỗi cốc có bao nhiêu ml?",150,"Nhân số bình với dung tích mỗi bình rồi chia đều.","225 × 4 = 900; 900 : 6 = 150 ml"):
+                    num("Có 360 viên gạch. Dùng một phần ba để xây cầu, rồi dùng 75 viên để sửa đường. Còn bao nhiêu viên?",165,"Tìm một phần ba của 360 rồi trừ hai phần đã dùng.","360 : 3 = 120; 360 − 120 − 75 = 165");
+            default:throw new IllegalArgumentException();
+        }
     }
     public static Q question(int n,int i){
         if(n<FIRST||n>LAST||i<0||i>=COUNT)throw new IllegalArgumentException();

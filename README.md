@@ -3,7 +3,9 @@
 Ứng dụng Android native offline dành cho học sinh lớp 3, nhân vật Mộc Nhiên.
 Không HTML, WebView, quảng cáo, tài khoản hoặc quyền Internet.
 
-## 0.1.0 — bản thử nghiệm
+## 0.2.0 — bản thử nghiệm
+- Mỗi bài có 2 câu nâng cao tùy chọn (40 câu tổng cộng), tiến độ riêng, không ảnh hưởng việc mở bài tiếp theo.
+- Giữ nguyên 160 câu cơ bản và mã định danh ứng dụng. Đọc được bản sao lưu v1 và v2.
 - 20 bài từ bài 25 đến 44, Toán 3 tập 1, Kết nối tri thức với cuộc sống.
 - Bài luyện tập tự soạn theo chủ đề. Chưa đọc được hai bản sách gốc được cung cấp, chưa xác nhận từng bài tập khớp vở bài tập. Cần hoàn thiện đối chiếu trước khi sử dụng làm bản học chính thức.
 - Học ngay trong hành trình: di chuyển, giải toán để mở đường, chia táo, đọc thước và nhiệt kế.

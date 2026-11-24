@@ -18,6 +18,20 @@ public class CurriculumCheck {
             if(!Arrays.equals(q.opts,Curriculum.question(n,i).opts))throw new AssertionError("not deterministic");
             total++;
         }
-        System.out.println("Checked "+total+" questions");
+        String[][] expected={
+            {"38","8"},{"96","89"},{"36","12"},{"7","7"},{"13","7"},
+            {"53","84"},{"625","125"},{"460","150"},{"22","22"},{"220","45"},
+            {"850","420"},{"207","784"},{"815","2"},{"(8 + 4) × 5","3"},{"2","5"},
+            {"72","60"},{"108","34"},{"43","16"},{"20","16"},{"150","165"}
+        };
+        if(Curriculum.ADVANCED_COUNT!=2)throw new AssertionError("Advanced count");
+        for(int n=25;n<=44;n++)for(int i=0;i<2;i++){
+            Curriculum.Q q=Curriculum.advanced(n,i);
+            if(!q.check(expected[n-25][i])||q.check("INVALID")||q.hint.isEmpty()||q.explain.isEmpty())throw new AssertionError("Advanced "+n+":"+i);
+            if(q.kind==Curriculum.CHOICE&&(new HashSet<>(Arrays.asList(q.opts)).size()!=3||!Arrays.asList(q.opts).contains(q.answer)))throw new AssertionError("Advanced choices");
+            if(!Arrays.equals(q.opts,Curriculum.advanced(n,i).opts))throw new AssertionError("Advanced deterministic");
+            total++;
+        }
+        System.out.println("Checked "+total+" questions (160 core + 40 advanced)");
     }
 }
