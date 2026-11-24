@@ -1,7 +1,7 @@
 package vn.toanlop3;
 import java.util.*;
 public final class BookBank {
- public enum Kind {NUMBER,CHOICE,MULTI,DIVISION,MULTIPLY,RULER,SCALE,BALANCE,CUP,THERMO,GEOMETRY,PRACTICE}
+ public enum Kind {NUMBER,CHOICE,MULTI,DIVISION,MULTIPLY,RULER,SCALE,BALANCE,CUP,THERMO,CUPS,CLINICAL,GEOMETRY,PRACTICE}
  public static final class Q {
    public final int lesson,period,page,exercise,part,a,b;
    public final Kind kind;
@@ -220,7 +220,7 @@ private static void l34(){
  add(34,1,83,4,2,Kind.CHOICE,"Từ túi 1 kg, lấy 700 g gạo chỉ cân một lần: làm sao?","Cân 300 g, giữ phần còn lại","1 000 − 300 = 700 g.","Đáp án: Cân 300 g, giữ phần còn lại",new String[]{"Cân 300 g, giữ phần còn lại","Cân 200 g, giữ phần còn lại","Cân 100 g, giữ phần còn lại"},0,0);
  add(34,2,83,1,1,Kind.THERMO,"Đọc nhiệt kế thứ nhất (°C).","40","Đọc ngang đỉnh cột màu.","40 °C",new String[]{},40,0);
  add(34,2,83,1,2,Kind.THERMO,"Đọc nhiệt kế thứ hai (°C).","0","Đọc ngang đỉnh cột màu.","0 °C",new String[]{},0,0);
- add(34,2,83,1,3,Kind.PRACTICE,"Đọc nhiệt kế thứ ba ở VBT tr.83, ghi số °C.","done","Thực hành với vở bài tập hoặc đồ dùng thật; nhờ người lớn kiểm tra.","Đối chiếu vạch chia trên ảnh gốc.",new String[]{},0,0);
+ add(34,2,83,1,3,Kind.THERMO,"Đọc nhiệt kế thứ ba (°C).","38","Đọc ngang đỉnh cột màu: mỗi vạch nhỏ là 1 °C.","38 °C.",new String[]{},38,0);
  add(34,2,84,2,1,Kind.CHOICE,"Xe đạp trẻ em nặng khoảng bao nhiêu?","20 kg","Đọc kỹ đề, tìm phép tính hoặc quan hệ phù hợp.","Đáp án: 20 kg",new String[]{"20 g","20 kg","2 kg"},0,0);
  add(34,2,84,2,2,Kind.CHOICE,"Máy tính xách tay nặng khoảng bao nhiêu?","2 kg","Đọc kỹ đề, tìm phép tính hoặc quan hệ phù hợp.","Đáp án: 2 kg",new String[]{"20 g","20 kg","2 kg"},0,0);
  add(34,2,84,2,3,Kind.CHOICE,"Bút máy nặng khoảng bao nhiêu?","20 g","Đọc kỹ đề, tìm phép tính hoặc quan hệ phù hợp.","Đáp án: 20 g",new String[]{"20 g","20 kg","2 kg"},0,0);
@@ -247,7 +247,8 @@ private static void l35(){
  add(35,2,86,1,2,Kind.NUMBER,"96 : 3 = ? mm","32","Tính theo đúng thứ tự các phép tính.","96 : 3 = 32 mm",new String[]{},0,0);
  add(35,2,86,1,3,Kind.NUMBER,"60 : 4 = ? ml","15","Tính theo đúng thứ tự các phép tính.","60 : 4 = 15 ml",new String[]{},0,0);
  add(35,2,86,1,4,Kind.NUMBER,"15 × 2 = ? ml","30","Tính theo đúng thứ tự các phép tính.","15 × 2 = 30 ml",new String[]{},0,0);
- add(35,2,86,2,1,Kind.PRACTICE,"Đọc nhiệt kế cơ thể của Nam trong VBT tr.86 và giải thích nhận xét.","done","Thực hành với vở bài tập hoặc đồ dùng thật; nhờ người lớn kiểm tra.","Đọc đúng vạch nhiệt kế trong sách; đây là bài toán đọc số đo.",new String[]{},0,0);
+ add(35,2,86,2,1,Kind.CLINICAL,"Nhiệt kế trong hình chỉ bao nhiêu độ C?","38","Đọc vạch ngang với đầu cột màu.","Nhiệt độ trên hình: 38 °C.",new String[]{},38,0);
+ add(35,2,86,2,2,Kind.CHOICE,"Trong bài toán, nhiệt độ của Nam là 38 °C. So với mức 37 °C, nhiệt độ ấy thế nào?","Cao hơn 1 °C","So sánh 38 với 37.","38 − 37 = 1 °C.",new String[]{"Cao hơn 1 °C","Bằng nhau","Thấp hơn 1 °C"},0,0);
  add(35,2,87,3,1,Kind.NUMBER,"Hộp sữa 250 ml, dùng 80 ml làm bánh. Còn bao nhiêu ml?","170","250 − 80","Đáp án: 170",new String[]{},0,0);
  add(35,2,87,4,1,Kind.NUMBER,"Hộp B và 100 g cân bằng 500 g. B nặng bao nhiêu gam?","400","500 − 100","Đáp án: 400",new String[]{},0,0);
  add(35,2,87,4,2,Kind.NUMBER,"Hộp A cân bằng hai hộp B 400 g. A nặng bao nhiêu gam?","800","400 × 2","Đáp án: 800",new String[]{},0,0);
@@ -481,7 +482,9 @@ private static void l42(){
  add(42,2,108,5,2,Kind.CHOICE,"Chọn dấu để 3 × (3 □ 3) bé nhất.",":","Đọc kỹ đề, tìm phép tính hoặc quan hệ phù hợp.","Đáp án: :",new String[]{"+","×",":"},0,0);
 }
 private static void l43(){
- add(43,1,109,1,1,Kind.PRACTICE,"Dùng ê ke đếm các góc vuông và góc không vuông tại A, B trong hình VBT tr.109.","done","Thực hành với vở bài tập hoặc đồ dùng thật; nhờ người lớn kiểm tra.","Đối chiếu hình gốc; kiểm tra từng góc bằng ê ke.",new String[]{},0,0);
+ add(43,1,109,1,1,Kind.GEOMETRY,"Trong hình có bao nhiêu góc không vuông đỉnh B?","2","Đếm hai góc nhỏ tạo bởi BK và hai cạnh BA, BC.","Góc ABK và KBC: 2 góc.",new String[]{"1","2","3"},1,0);
+ add(43,1,109,1,7,Kind.GEOMETRY,"Trong hình có bao nhiêu góc không vuông đỉnh A?","3","Xem từng cặp tia AB, AK, AE.","BAK, KAE và BAE: 3 góc.",new String[]{"1","2","3"},1,0);
+ add(43,1,109,1,8,Kind.GEOMETRY,"Trong cả hình có bao nhiêu góc vuông?","11","Đếm tại B, K, I, H.","1 + 4 + 4 + 2 = 11 góc.",new String[]{"9","10","11","12"},1,0);
  add(43,1,109,1,2,Kind.GEOMETRY,"Trung điểm đoạn AC trong hình là điểm nào?","K","Trung điểm nằm giữa và cách đều hai đầu mút.","Trung điểm: K",new String[]{"K","I","H"},1,0);
  add(43,1,109,1,3,Kind.GEOMETRY,"Trung điểm đoạn ED trong hình là điểm nào?","I","Trung điểm nằm giữa và cách đều hai đầu mút.","Trung điểm: I",new String[]{"K","I","H"},1,0);
  add(43,1,109,1,4,Kind.GEOMETRY,"Trung điểm đoạn KH trong hình là điểm nào?","I","Trung điểm nằm giữa và cách đều hai đầu mút.","Trung điểm: I",new String[]{"K","I","H"},1,0);
@@ -535,7 +538,7 @@ private static void l44(){
  add(44,2,114,2,3,Kind.DIVISION,"847 : 7","121,0","Chia từ trái sang phải; số dư nhỏ hơn số chia.","847 = 7 × 121; thương 121, dư 0.",new String[]{},847,7);
  add(44,2,115,3,1,Kind.NUMBER,"Đường gấp khúc gồm 34 mm, 18 mm và 45 mm. Tổng độ dài?","97","34 + 18 + 45","Đáp án: 97",new String[]{},0,0);
  add(44,2,115,3,2,Kind.NUMBER,"Túi đường cân bằng 100 g, 200 g và 500 g. Túi nặng bao nhiêu gam?","800","100 + 200 + 500","Đáp án: 800",new String[]{},0,0);
- add(44,2,115,3,3,Kind.PRACTICE,"Đọc ba ca nước VBT tr.115 và cộng số đo, ghi kết quả bằng ml.","done","Thực hành với vở bài tập hoặc đồ dùng thật; nhờ người lớn kiểm tra.","Đọc mực nước từng ca theo vạch trong hình gốc.",new String[]{},0,0);
+ add(44,2,115,3,3,Kind.CUPS,"Rót hết nước trong bình được ba ca như hình. Ban đầu bình có bao nhiêu ml?","600","Đọc mỗi ca rồi cộng ba lượng nước.","200 + 200 + 200 = 600 ml.",new String[]{},200,200);
  add(44,2,115,4,1,Kind.NUMBER,"32 × 6 : 3 = ?","64","Tính theo đúng thứ tự các phép tính.","32 × 6 : 3 = 64",new String[]{},0,0);
  add(44,2,115,4,2,Kind.NUMBER,"32 × (6 − 3) = ?","96","Tính theo đúng thứ tự các phép tính.","32 × (6 − 3) = 96",new String[]{},0,0);
  add(44,2,115,5,1,Kind.NUMBER,"Ngày đầu trồng 235 cây; ngày sau nhiều hơn 80 cây. Ngày sau trồng bao nhiêu cây?","315","235 + 80","Đáp án: 315",new String[]{},0,0);
